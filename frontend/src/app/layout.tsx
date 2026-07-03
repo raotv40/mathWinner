@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "MathMentor AI - CBSE K-12 Mathematics Learning Platform",
+  title: "MathWinner AI - CBSE K-12 Mathematics Learning Platform",
   description: "Offline-first K-12 math educational dashboard featuring custom video players, whiteboard solver grading, RAG AI tutors, and competency board assessments.",
 };
 

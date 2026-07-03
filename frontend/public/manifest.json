@@ -1,6 +1,6 @@
 {
-  "name": "MathMentor AI - CBSE Mathematics Platform",
-  "short_name": "MathMentor",
+  "name": "MathWinner AI - CBSE Mathematics Platform",
+  "short_name": "MathWinner",
   "description": "Offline-first K-12 math educational learning dashboard aligned with CBSE school boards.",
   "start_url": "/",
   "display": "standalone",

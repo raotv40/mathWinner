@@ -57,7 +57,7 @@ export interface OfflineProgress {
   last_active: string;
 }
 
-class MathMentorOfflineDB extends Dexie {
+class MathWinnerOfflineDB extends Dexie {
   chapters!: Table<OfflineChapter, string>;
   concepts!: Table<OfflineConcept, string>;
   questions!: Table<OfflineQuestion, string>;
@@ -66,7 +66,7 @@ class MathMentorOfflineDB extends Dexie {
   progress!: Table<OfflineProgress, number>;
 
   constructor() {
-    super('MathMentorOfflineDB');
+    super('MathWinnerOfflineDB');
     this.version(1).stores({
       chapters: 'id, class_level, title',
       concepts: 'id, chapter_id, title',
@@ -78,7 +78,7 @@ class MathMentorOfflineDB extends Dexie {
   }
 }
 
-export const db = new MathMentorOfflineDB();
+export const db = new MathWinnerOfflineDB();
 
 // Cosine similarity for client-side offline vector search (RAG)
 export function cosineSimilarity(a: number[], b: number[]): number {

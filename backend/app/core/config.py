@@ -2,13 +2,13 @@ from pydantic_settings import BaseSettings
 from typing import Optional
 
 class Settings(BaseSettings):
-    PROJECT_NAME: str = "MathMentor AI"
+    PROJECT_NAME: str = "MathWinner AI"
     API_V1_STR: str = "/api/v1"
     SECRET_KEY: str = "supersecretkeychangeinproduction1234567890"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7  # 7 days
     
     # Database Config
-    DATABASE_URL: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/mathmentor"
+    DATABASE_URL: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/mathwinner"
     
     # Redis Config
     REDIS_URL: str = "redis://localhost:6379/0"

@@ -17,7 +17,7 @@ interface AITutorProps {
 
 export default function AITutor({ chapterId, initialQuery = '', initialConcept = '' }: AITutorProps) {
   const [messages, setMessages] = useState<Message[]>([
-    { sender: 'ai', text: 'Hi! I am your AI MathMentor. Ask me to explain concepts, show step-by-step solutions, or translate chapters into your mother tongue.' }
+    { sender: 'ai', text: 'Hi! I am your AI MathWinner. Ask me to explain concepts, show step-by-step solutions, or translate chapters into your mother tongue.' }
   ]);
   const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);

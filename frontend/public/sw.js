@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mathmentor-cache-v1';
+const CACHE_NAME = 'mathwinner-cache-v1';
 const ASSETS_TO_CACHE = [
   '/',
   '/globals.css',

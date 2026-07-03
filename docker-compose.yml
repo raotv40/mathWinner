@@ -3,10 +3,10 @@ version: '3.8'
 services:
   db:
     image: pgvector/pgvector:pg16
-    container_name: mathmentor-db
+    container_name: mathwinner-db
     restart: always
     environment:
-      POSTGRES_DB: mathmentor
+      POSTGRES_DB: mathwinner
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
@@ -14,14 +14,14 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d mathmentor"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d mathwinner"]
       interval: 5s
       timeout: 5s
       retries: 5
 
   redis:
     image: redis:7-alpine
-    container_name: mathmentor-redis
+    container_name: mathwinner-redis
     restart: always
     ports:
       - "6379:6379"
@@ -37,7 +37,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: mathmentor-backend
+    container_name: mathwinner-backend
     restart: always
     depends_on:
       db:
@@ -45,7 +45,7 @@ services:
       redis:
         condition: service_healthy
     environment:
-      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5432/mathmentor
+      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5432/mathwinner
       - REDIS_URL=redis://redis:6379/0
       - UPLOAD_DIR=uploads
       - OFFLINE_PACKAGES_DIR=offline_packages
@@ -59,7 +59,7 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    container_name: mathmentor-frontend
+    container_name: mathwinner-frontend
     restart: always
     depends_on:
       - backend

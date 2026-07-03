@@ -57,4 +57,4 @@ app.include_router(admin.router, prefix=settings.API_V1_STR)
 
 @app.get("/")
 def read_root():
-    return {"message": "Welcome to MathMentor AI Learning Platform API", "docs": "/docs"}
+    return {"message": "Welcome to MathWinner AI Learning Platform API", "docs": "/docs"}

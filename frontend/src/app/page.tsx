@@ -223,11 +223,11 @@ export default function Home() {
       <header className="bg-slate-900/60 border-b border-slate-800/80 sticky top-0 z-50 backdrop-blur-md px-6 py-4 flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-teal-400 to-blue-500 flex items-center justify-center text-slate-950 font-black shadow-lg shadow-teal-500/25">
-            M²
+            W
           </div>
           <div>
             <h1 className="text-sm font-black tracking-wider uppercase text-white flex items-center gap-1.5">
-              MathMentor AI <span className="text-[9px] font-bold bg-teal-500/10 border border-teal-500/20 text-teal-400 px-2 py-0.5 rounded-full">CBSE K-12</span>
+              MathWinner AI <span className="text-[9px] font-bold bg-teal-500/10 border border-teal-500/20 text-teal-400 px-2 py-0.5 rounded-full">CBSE K-12</span>
             </h1>
             <p className="text-[10px] text-slate-400">Offline-first math classroom simulator</p>
           </div>

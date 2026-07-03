@@ -51,7 +51,7 @@ class TutorAgent:
         client = AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
         
         system_prompt = f"""
-        You are MathMentor AI, an expert K-12 CBSE Math Tutor.
+        You are MathWinner AI, an expert K-12 CBSE Math Tutor.
         Always answer utilizing the official NCERT context:
         Concept context: {concept} - {content}
         

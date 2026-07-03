@@ -1,4 +1,4 @@
-name: MathMentor AI CI/CD Pipeline
+name: MathWinner AI CI/CD Pipeline
 
 on:
   push:

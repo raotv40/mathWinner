@@ -7,7 +7,7 @@ client = TestClient(app)
 def test_read_root():
     response = client.get("/")
     assert response.status_code == 200
-    assert "Welcome to MathMentor AI" in response.json()["message"]
+    assert "Welcome to MathWinner AI" in response.json()["message"]
 
 def test_docs_page():
     response = client.get("/docs")

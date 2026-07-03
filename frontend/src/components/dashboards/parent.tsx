@@ -89,7 +89,7 @@ export default function ParentDashboard({ stats }: ParentDashboardProps) {
         {/* AI Recommendations */}
         <div className="bg-slate-900/60 p-6 rounded-3xl border border-slate-800 flex flex-col gap-4">
           <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
-            <MessageSquare className="w-4 h-4 text-teal-400" /> MathMentor AI Advice
+            <MessageSquare className="w-4 h-4 text-teal-400" /> MathWinner AI Advice
           </h3>
           
           <div className="flex-1 space-y-4">

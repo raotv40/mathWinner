@@ -1,6 +1,6 @@
-# MathMentor AI - CBSE K-12 Mathematics Learning Platform
+# MathWinner AI - CBSE K-12 Mathematics Learning Platform
 
-MathMentor AI is a production-ready, progressive K-12 Mathematics Learning Platform designed for CBSE Class 1-12 curriculum. It integrates textbook PDF parsing, teacher lecture videos, interactive whiteboards, competency-based SAFAL assessments, and a RAG-powered AI Tutor into a single offline-first application.
+MathWinner AI is a production-ready, progressive K-12 Mathematics Learning Platform designed for CBSE Class 1-12 curriculum. It integrates textbook PDF parsing, teacher lecture videos, interactive whiteboards, competency-based SAFAL assessments, and a RAG-powered AI Tutor into a single offline-first application.
 
 ---
 
@@ -50,7 +50,7 @@ Ensure you have **Docker** and **Docker Compose** installed.
 Create a `.env` file in the root directory (or update compose values):
 ```env
 OPENAI_API_KEY=your-openai-api-key
-DATABASE_URL=postgresql+asyncpg://postgres:postgres@localhost:5432/mathmentor
+DATABASE_URL=postgresql+asyncpg://postgres:postgres@localhost:5432/mathwinner
 REDIS_URL=redis://localhost:6379/0
 ```
 *Note: If `OPENAI_API_KEY` is omitted, the backend automatically falls back to an intelligent simulation mode that generates realistic mock data, ensuring the app runs instantly for demo purposes.*
