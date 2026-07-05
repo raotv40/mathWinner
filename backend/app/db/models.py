@@ -10,8 +10,8 @@ Base = declarative_base()
 concept_connections = Table(
     'concept_connections',
     Base.metadata,
-    Column('source_id', UUID(as_uuid=True), ForeignKey('concepts.id', on_delete='CASCADE'), primary_key=True),
-    Column('target_id', UUID(as_uuid=True), ForeignKey('concepts.id', on_delete='CASCADE'), primary_key=True)
+    Column('source_id', UUID(as_uuid=True), ForeignKey('concepts.id', ondelete='CASCADE'), primary_key=True),
+    Column('target_id', UUID(as_uuid=True), ForeignKey('concepts.id', ondelete='CASCADE'), primary_key=True)
 )
 
 class User(Base):
@@ -49,10 +49,10 @@ class Concept(Base):
     __tablename__ = "concepts"
     
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    chapter_id = Column(UUID(as_uuid=True), ForeignKey("chapters.id", on_delete="CASCADE"), nullable=False)
+    chapter_id = Column(UUID(as_uuid=True), ForeignKey("chapters.id", ondelete="CASCADE"), nullable=False)
     title = Column(String(255), nullable=False)
     description = Column(Text, nullable=False)
-    parent_concept_id = Column(UUID(as_uuid=True), ForeignKey("concepts.id", on_delete="SET NULL"))
+    parent_concept_id = Column(UUID(as_uuid=True), ForeignKey("concepts.id", ondelete="SET NULL"))
     created_at = Column(DateTime, default=datetime.utcnow)
     
     chapter = relationship("Chapter", back_populates="concepts")
@@ -73,8 +73,8 @@ class ChapterEmbedding(Base):
     __tablename__ = "chapter_embeddings"
     
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    chapter_id = Column(UUID(as_uuid=True), ForeignKey("chapters.id", on_delete="CASCADE"), nullable=False)
-    concept_id = Column(UUID(as_uuid=True), ForeignKey("concepts.id", on_delete="SET NULL"), nullable=True)
+    chapter_id = Column(UUID(as_uuid=True), ForeignKey("chapters.id", ondelete="CASCADE"), nullable=False)
+    concept_id = Column(UUID(as_uuid=True), ForeignKey("concepts.id", ondelete="SET NULL"), nullable=True)
     source_type = Column(String(50), nullable=False) # 'pdf' or 'video'
     content = Column(Text, nullable=False)
     timestamp_seconds = Column(Float)
@@ -89,8 +89,8 @@ class Question(Base):
     __tablename__ = "questions"
     
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    chapter_id = Column(UUID(as_uuid=True), ForeignKey("chapters.id", on_delete="CASCADE"), nullable=False)
-    concept_id = Column(UUID(as_uuid=True), ForeignKey("concepts.id", on_delete="SET NULL"), nullable=True)
+    chapter_id = Column(UUID(as_uuid=True), ForeignKey("chapters.id", ondelete="CASCADE"), nullable=False)
+    concept_id = Column(UUID(as_uuid=True), ForeignKey("concepts.id", ondelete="SET NULL"), nullable=True)
     difficulty = Column(String(50), nullable=False) # 'easy', 'medium', 'hard'
     category = Column(String(100), nullable=False) # 'board', 'olympiad', 'hots', 'competency', 'case-study'
     question_text = Column(Text, nullable=False)
@@ -107,8 +107,8 @@ class StudentProgress(Base):
     __tablename__ = "student_progress"
     
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", on_delete="CASCADE"), nullable=False)
-    chapter_id = Column(UUID(as_uuid=True), ForeignKey("chapters.id", on_delete="CASCADE"), nullable=False)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    chapter_id = Column(UUID(as_uuid=True), ForeignKey("chapters.id", ondelete="CASCADE"), nullable=False)
     mastery_score = Column(Float, default=0.0)
     video_progress = Column(JSONB, default=dict) # dict of {video_chunk_id: bool}
     completed_videos = Column(Integer, default=0)
@@ -122,8 +122,8 @@ class Submission(Base):
     __tablename__ = "submissions"
     
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", on_delete="CASCADE"), nullable=False)
-    question_id = Column(UUID(as_uuid=True), ForeignKey("questions.id", on_delete="CASCADE"), nullable=False)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    question_id = Column(UUID(as_uuid=True), ForeignKey("questions.id", ondelete="CASCADE"), nullable=False)
     whiteboard_data = Column(Text) # JSON or SVG data from canvas
     is_correct = Column(String(50)) # 'correct', 'incorrect', 'partial'
     eval_score = Column(Integer) # out of 100
