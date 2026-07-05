@@ -61,7 +61,7 @@ export default function VideoPlayer({ chapterId, videoUrl, formulas, onAskAI }: 
         const urlStr = videoUrl || '';
         if (urlStr.includes('mock_chapter') || urlStr === '#' || !urlStr) {
           // Reliable public educational placeholder video stream
-          setVideoSrc("https://www.w3schools.com/html/mov_bbb.mp4");
+          setVideoSrc("https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4");
         } else {
           setVideoSrc(urlStr);
         }
