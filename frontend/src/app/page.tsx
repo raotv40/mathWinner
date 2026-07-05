@@ -11,7 +11,13 @@ import { db } from '../lib/db';
 
 export default function Home() {
   const [journeyStarted, setJourneyStarted] = useState<boolean>(false);
-  const [selectedClass, setSelectedClass] = useState<number>(10);
+  const [selectedClass, setSelectedClass] = useState<number>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('mathwinner_selected_class');
+      return saved ? parseInt(saved, 10) : 5; // Default to Class 5
+    }
+    return 5;
+  });
 
   useEffect(() => {
     const started = localStorage.getItem('mathwinner_journey_started');
@@ -19,6 +25,10 @@ export default function Home() {
       setJourneyStarted(true);
     }
   }, []);
+
+  useEffect(() => {
+    localStorage.setItem('mathwinner_selected_class', selectedClass.toString());
+  }, [selectedClass]);
 
   const handleStartJourney = () => {
     setJourneyStarted(true);
@@ -242,7 +252,7 @@ export default function Home() {
       // Save local blobs for persistence across server restarts
       try {
         await db.files.put({
-          id: data.id,
+          id: data.chapter_id,
           pdfBlob: pdfFile,
           videoBlob: videoFile
         });
@@ -251,7 +261,7 @@ export default function Home() {
       }
 
       // Auto-select the newly uploaded chapter
-      selectChapter(data.id);
+      selectChapter(data.chapter_id);
       
       setTimeout(async () => {
         setUploadProgress(null);
@@ -596,6 +606,7 @@ export default function Home() {
                     chapterId={selectedChapterId!}
                     videoUrl={resolveUploadUrl(chapterDetails.video_url) || '#'}
                     formulas={chapterDetails.formulas || []}
+                    transcript={chapterDetails.transcript}
                   />
                 </div>
 

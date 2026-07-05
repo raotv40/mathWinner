@@ -15,6 +15,7 @@ interface VideoPlayerProps {
   chapterId: string;
   videoUrl: string;
   formulas: any[];
+  transcript?: TranscriptSegment[];
   onAskAI?: (contextText: string, concept: string) => void;
 }
 
@@ -69,7 +70,7 @@ function formatFormulaText(formula: string): string {
   return result;
 }
 
-export default function VideoPlayer({ chapterId, videoUrl, formulas, onAskAI }: VideoPlayerProps) {
+export default function VideoPlayer({ chapterId, videoUrl, formulas, transcript, onAskAI }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const transcriptContainerRef = useRef<HTMLDivElement>(null);
   
@@ -84,7 +85,7 @@ export default function VideoPlayer({ chapterId, videoUrl, formulas, onAskAI }: 
   const [bookmarks, setBookmarks] = useState<number[]>([]);
   const [activeConcept, setActiveConcept] = useState<string>('Introduction');
   
-  // Custom mock transcripts aligned to typical CBSE math chapters
+  // Custom mock transcripts aligned to K-12 chapters
   const [transcripts, setTranscripts] = useState<TranscriptSegment[]>([
     { concept_title: "Introduction", start_time: 0, end_time: 25, text: "Welcome class! Today we will explore a vital K-12 math chapter." },
     { concept_title: "Core Concepts", start_time: 26, end_time: 90, text: "Let's review the main textbook sections and structural definitions." },
@@ -120,7 +121,18 @@ export default function VideoPlayer({ chapterId, videoUrl, formulas, onAskAI }: 
       setIsPlaying(false);
     }
     loadOfflineVideo();
-  }, [chapterId, videoUrl]);
+
+    if (transcript && transcript.length > 0) {
+      setTranscripts(transcript);
+    } else {
+      setTranscripts([
+        { concept_title: "Introduction", start_time: 0, end_time: 25, text: "Welcome class! Today we will explore a vital K-12 math chapter." },
+        { concept_title: "Core Concepts", start_time: 26, end_time: 90, text: "Let's review the main textbook sections and structural definitions." },
+        { concept_title: "Formulas & Proofs", start_time: 91, end_time: 180, text: "Now we derive the key equations and formulas. Take down notes on the formulas shown on the whiteboard." },
+        { concept_title: "Worked Examples", start_time: 181, end_time: 300, text: "Let's solve some Board questions and HOTS level case studies step-by-step." }
+      ]);
+    }
+  }, [chapterId, videoUrl, transcript]);
 
   // Sync concept timeline
   useEffect(() => {

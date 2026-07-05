@@ -14,6 +14,7 @@ export interface ChapterDetails {
   formulas: any[];
   mind_map: any;
   concepts?: any[];
+  transcript?: any[];
 }
 
 export function isOnline(): boolean {

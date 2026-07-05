@@ -56,6 +56,25 @@ async def get_chapter(chapter_id: str, db: AsyncSession = Depends(get_db)):
     conc_result = await db.execute(select(Concept).filter(Concept.chapter_id == chap_uuid))
     concepts = conc_result.scalars().all()
     
+    # Get video transcript segments and join with Concept
+    video_segments_result = await db.execute(
+        select(ChapterEmbedding, Concept)
+        .outerjoin(Concept, ChapterEmbedding.concept_id == Concept.id)
+        .filter(ChapterEmbedding.chapter_id == chap_uuid, ChapterEmbedding.source_type == "video")
+        .order_by(ChapterEmbedding.timestamp_seconds.asc())
+    )
+    video_data = video_segments_result.all()
+    
+    transcript = []
+    for emb, concept in video_data:
+        concept_title = concept.title if concept else "Lesson Segment"
+        transcript.append({
+            "concept_title": concept_title,
+            "start_time": int(emb.timestamp_seconds) if emb.timestamp_seconds is not None else 0,
+            "end_time": int(emb.timestamp_seconds + 180) if emb.timestamp_seconds is not None else 180,
+            "text": emb.content
+        })
+        
     return {
         "id": str(ch.id),
         "class_level": ch.class_level,
@@ -67,7 +86,8 @@ async def get_chapter(chapter_id: str, db: AsyncSession = Depends(get_db)):
         "summary": ch.summary,
         "formulas": ch.formulas,
         "mind_map": ch.mind_map,
-        "concepts": [{"title": c.title, "description": c.description} for c in concepts]
+        "concepts": [{"title": c.title, "description": c.description} for c in concepts],
+        "transcript": transcript
     }
 
 async def process_chapter_files_bg(
