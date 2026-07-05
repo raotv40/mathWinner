@@ -534,86 +534,144 @@ export default function Home() {
 
           {/* Upload card */}
           <div className="lg:col-span-2 bg-slate-900/40 p-6 rounded-3xl border border-slate-800">
-            <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2 mb-4">
-              <Upload className="w-5 h-5 text-teal-400" /> Upload Textbook & Video lesson
-            </h3>
-
-            <form onSubmit={handleUploadSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-3">
+            {chapterDetails ? (
+              // Active Chapter Details Mode
+              <div className="h-full flex flex-col justify-between">
                 <div>
-                  <label className="text-[10px] text-slate-400 font-bold uppercase block mb-1">Chapter Title</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. Quadratic Equations"
-                    value={uploadTitle}
-                    onChange={(e) => setUploadTitle(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-850 rounded-xl px-3 py-2 text-xs text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-teal-500"
-                  />
+                  <h3 className="text-sm font-bold text-teal-400 uppercase tracking-wider flex items-center gap-2 mb-4">
+                    <BookOpen className="w-5 h-5" /> Active Chapter Details
+                  </h3>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-4">
+                      <div>
+                        <span className="text-[10px] text-slate-500 font-bold uppercase block">Chapter Title</span>
+                        <p className="text-sm font-bold text-white mt-1">{chapterDetails.title}</p>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <span className="text-[10px] text-slate-500 font-bold uppercase block">Class Level</span>
+                          <p className="text-sm font-bold text-white mt-1">Class {chapterDetails.class_level}</p>
+                        </div>
+                        <div>
+                          <span className="text-[10px] text-slate-500 font-bold uppercase block">Chapter Number</span>
+                          <p className="text-sm font-bold text-white mt-1">Chapter {chapterDetails.chapter_number}</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-3 bg-slate-950/40 p-4 rounded-2xl border border-slate-850">
+                      <span className="text-[10px] text-slate-500 font-bold uppercase block mb-1">Uploaded Content Status</span>
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2 text-xs text-emerald-400 font-medium">
+                          <CheckCircle2 className="w-4.5 h-4.5" /> NCERT Textbook PDF (Loaded)
+                        </div>
+                        <div className="flex items-center gap-2 text-xs text-emerald-400 font-medium">
+                          <CheckCircle2 className="w-4.5 h-4.5" /> Teacher Video Lesson (Loaded)
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-[10px] text-slate-400 font-bold uppercase block mb-1">Class</label>
-                    <input
-                      type="number"
-                      min={1}
-                      max={12}
-                      value={selectedClass}
-                      onChange={(e) => setSelectedClass(parseInt(e.target.value) || 1)}
-                      className="w-full bg-slate-950 border border-slate-850 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-teal-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-[10px] text-slate-400 font-bold uppercase block mb-1">Chapter #</label>
-                    <input
-                      type="number"
-                      min={1}
-                      value={uploadNum}
-                      onChange={(e) => setUploadNum(parseInt(e.target.value))}
-                      className="w-full bg-slate-950 border border-slate-850 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-teal-500"
-                    />
-                  </div>
+                <div className="flex justify-end gap-3 mt-6">
+                  <button
+                    onClick={() => {
+                      // Switch to uploading a new chapter by clearing selection
+                      selectChapter(null);
+                    }}
+                    className="bg-slate-800 hover:bg-slate-750 text-white font-bold py-2.5 px-6 rounded-xl border border-slate-700 transition text-xs cursor-pointer"
+                  >
+                    + Upload Another Chapter
+                  </button>
                 </div>
               </div>
+            ) : (
+              // Upload New Chapter Mode
+              <>
+                <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2 mb-4">
+                  <Upload className="w-5 h-5 text-teal-400" /> Upload Textbook & Video lesson
+                </h3>
 
-              <div className="space-y-3">
-                <div>
-                  <div className="flex justify-between items-center mb-1">
-                    <label className="text-[10px] text-slate-400 font-bold uppercase">NCERT PDF File (Max 200MB)</label>
-                    <a 
-                      href="https://ncert.nic.in/textbook.php?eemh1=0-14" 
-                      target="_blank" 
-                      rel="noopener noreferrer" 
-                      className="text-[9px] text-teal-400 hover:text-teal-300 font-bold flex items-center gap-0.5"
+                <form onSubmit={handleUploadSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-3">
+                    <div>
+                      <label className="text-[10px] text-slate-400 font-bold uppercase block mb-1">Chapter Title</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="e.g. Quadratic Equations"
+                        value={uploadTitle}
+                        onChange={(e) => setUploadTitle(e.target.value)}
+                        className="w-full bg-slate-950 border border-slate-850 rounded-xl px-3 py-2 text-xs text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-teal-500"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="text-[10px] text-slate-400 font-bold uppercase block mb-1">Class</label>
+                        <input
+                          type="number"
+                          min={1}
+                          max={12}
+                          value={selectedClass}
+                          onChange={(e) => setSelectedClass(parseInt(e.target.value) || 1)}
+                          className="w-full bg-slate-950 border border-slate-850 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-teal-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[10px] text-slate-400 font-bold uppercase block mb-1">Chapter #</label>
+                        <input
+                          type="number"
+                          min={1}
+                          value={uploadNum}
+                          onChange={(e) => setUploadNum(parseInt(e.target.value))}
+                          className="w-full bg-slate-950 border border-slate-850 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-teal-500"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <div>
+                      <div className="flex justify-between items-center mb-1">
+                        <label className="text-[10px] text-slate-400 font-bold uppercase">NCERT PDF File (Max 200MB)</label>
+                        <a 
+                          href="https://ncert.nic.in/textbook.php?eemh1=0-14" 
+                          target="_blank" 
+                          rel="noopener noreferrer" 
+                          className="text-[9px] text-teal-400 hover:text-teal-300 font-bold flex items-center gap-0.5"
+                        >
+                          Find NCERT Books ↗
+                        </a>
+                      </div>
+                      <input type="file" name="pdf" accept=".pdf" required className="w-full text-xs text-slate-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-teal-300 file:cursor-pointer hover:file:bg-slate-700" />
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-slate-400 font-bold uppercase block mb-1">Teacher Lesson Video (Max 5GB)</label>
+                      <input type="file" name="video" accept="video/*" required className="w-full text-xs text-slate-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-teal-300 file:cursor-pointer hover:file:bg-slate-700" />
+                    </div>
+                  </div>
+
+                  <div className="md:col-span-2 flex items-center justify-between gap-4 mt-2">
+                    <button
+                      type="submit"
+                      disabled={!!uploadProgress}
+                      className="bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold py-2.5 px-6 rounded-xl shadow-lg shadow-teal-500/25 transition text-xs disabled:opacity-50"
                     >
-                      Find NCERT Books ↗
-                    </a>
+                      Upload & Process
+                    </button>
+
+                    {uploadProgress && (
+                      <p className="text-xs text-teal-300 flex items-center gap-1.5 animate-pulse font-semibold">
+                        <RefreshCw className="w-4 h-4 animate-spin" /> {uploadProgress}
+                      </p>
+                    )}
                   </div>
-                  <input type="file" name="pdf" accept=".pdf" required className="w-full text-xs text-slate-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-teal-300 file:cursor-pointer hover:file:bg-slate-700" />
-                </div>
-                <div>
-                  <label className="text-[10px] text-slate-400 font-bold uppercase block mb-1">Teacher Lesson Video (Max 5GB)</label>
-                  <input type="file" name="video" accept="video/*" required className="w-full text-xs text-slate-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-teal-300 file:cursor-pointer hover:file:bg-slate-700" />
-                </div>
-              </div>
-
-              <div className="md:col-span-2 flex items-center justify-between gap-4 mt-2">
-                <button
-                  type="submit"
-                  disabled={!!uploadProgress}
-                  className="bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold py-2.5 px-6 rounded-xl shadow-lg shadow-teal-500/25 transition text-xs disabled:opacity-50"
-                >
-                  Upload & Process
-                </button>
-
-                {uploadProgress && (
-                  <p className="text-xs text-teal-300 flex items-center gap-1.5 animate-pulse font-semibold">
-                    <RefreshCw className="w-4 h-4 animate-spin" /> {uploadProgress}
-                  </p>
-                )}
-              </div>
-            </form>
+                </form>
+              </>
+            )}
           </div>
         </section>
 
