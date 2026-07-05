@@ -99,3 +99,38 @@ async def seed_data(db: AsyncSession = Depends(get_db)):
         "status": "success",
         "message": f"Successfully seeded chapters: {', '.join(seeded_chapters)}."
     }
+
+@router.post("/clear", response_model=Dict[str, Any])
+async def clear_data(db: AsyncSession = Depends(get_db)):
+    """
+    Deletes all records from the database chapters, concepts, questions, and embeddings tables,
+    and removes all uploaded files on disk.
+    """
+    from sqlalchemy import delete
+    import shutil
+    import os
+    from app.core.config import settings
+    
+    # Delete child tables first to respect foreign keys
+    await db.execute(delete(ChapterEmbedding))
+    await db.execute(delete(Question))
+    await db.execute(delete(Concept))
+    await db.execute(delete(Chapter))
+    await db.commit()
+    
+    # Clear physical uploads folder
+    if os.path.exists(settings.UPLOAD_DIR):
+        for filename in os.listdir(settings.UPLOAD_DIR):
+            file_path = os.path.join(settings.UPLOAD_DIR, filename)
+            try:
+                if os.path.isfile(file_path) or os.path.islink(file_path):
+                    os.unlink(file_path)
+                elif os.path.isdir(file_path):
+                    shutil.rmtree(file_path)
+            except Exception as e:
+                print(f"Failed to delete {file_path}. Reason: {e}")
+                
+    return {
+        "status": "success",
+        "message": "Successfully cleared all database entries and uploads on disk."
+    }

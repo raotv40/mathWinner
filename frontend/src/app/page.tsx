@@ -3,13 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { BookOpen, Upload, Download, Sparkles, AlertCircle, Wifi, WifiOff, RefreshCw, BarChart2, ShieldAlert, Users, Trash2, Brain, Video, CheckCircle2, ChevronRight, GraduationCap, FileText } from 'lucide-react';
 
-import VideoPlayer from '../components/video-player';
-import Whiteboard from '../components/whiteboard';
 import PracticeEngine, { QuestionData } from '../components/practice';
-import AITutor from '../components/tutor';
-import StudentDashboard from '../components/dashboards/student';
-import ParentDashboard from '../components/dashboards/parent';
-import TeacherDashboard from '../components/dashboards/teacher';
 
 import { fetchChapters, fetchChapter, downloadChapterOffline, isOnline as checkOnline, API_BASE_URL, resolveUploadUrl } from '../lib/api';
 import { db } from '../lib/db';
@@ -36,23 +30,13 @@ export default function Home() {
   // Simulation of connection toggle for testing
   const [onlineStatus, setOnlineStatus] = useState(true);
   
-  // Seeding/Uploading states
-  const [isSeeding, setIsSeeding] = useState(false);
+  // Uploading states
   const [uploadProgress, setUploadProgress] = useState<string | null>(null);
-  const [downloadProgress, setDownloadProgress] = useState<string | null>(null);
-  
-  // Workspace UI states
-  const [activeTab, setActiveTab] = useState<'study' | 'analytics'>('study');
-  const [dashboardRole, setDashboardRole] = useState<'student' | 'parent' | 'teacher'>('student');
   
   // Form Upload state
   const [uploadClass, setUploadClass] = useState(10);
   const [uploadNum, setUploadNum] = useState(1);
   const [uploadTitle, setUploadTitle] = useState('');
-  
-  // AI Tutor trigger helper (Pause & Ask AI)
-  const [tutorQuery, setTutorQuery] = useState('');
-  const [tutorConcept, setTutorConcept] = useState('');
 
   // Load chapters
   const loadChaptersList = async () => {
@@ -136,51 +120,6 @@ export default function Home() {
         value: !onlineStatus,
         configurable: true
       });
-    }
-  };
-
-  // Seed default data
-  const handleSeedData = async () => {
-    setIsSeeding(true);
-    try {
-      const res = await fetch(`${API_BASE_URL}/admin/seed`, { method: 'POST' });
-      const msg = await res.json();
-      alert(msg.message || "Seeding complete!");
-      await loadChaptersList();
-    } catch (err) {
-      console.warn(err);
-      alert("Could not connect to backend server. Running in mock setup mode.");
-      // Inject local simulated chapters into IndexedDB directly for demonstration
-      await db.chapters.put({
-        id: "mock-chapter-quadratic",
-        class_level: 10,
-        subject: "Mathematics",
-        title: "Quadratic Equations (Simulated Offline)",
-        chapter_number: 4,
-        summary: "CBSE Class 10 chapter on quadratic polynomial equations.",
-        formulas: [{ formula: "ax^2 + bx + c = 0", explanation: "Standard form" }],
-        mind_map: { nodes: [], links: [] },
-        pdf_url: "#",
-        video_url: "#"
-      });
-      await loadChaptersList();
-    } finally {
-      setIsSeeding(false);
-    }
-  };
-
-  // Download Offline Package
-  const triggerOfflineDownload = async () => {
-    if (!selectedChapterId) return;
-    setDownloadProgress("Starting download...");
-    try {
-      await downloadChapterOffline(selectedChapterId, (msg) => {
-        setDownloadProgress(msg);
-      });
-      setTimeout(() => setDownloadProgress(null), 3000);
-    } catch (err: any) {
-      console.error(err);
-      setDownloadProgress(`Error: ${err.message || 'Download failed'}`);
     }
   };
 
@@ -430,16 +369,6 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            <button
-              onClick={handleSeedData}
-              disabled={isSeeding}
-              className="bg-slate-850 hover:bg-slate-800 text-teal-300 font-semibold px-4.5 py-2.5 rounded-xl border border-slate-800 transition text-xs flex items-center gap-2"
-            >
-              {isSeeding ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-              Seed CBSE Sample Chapters
-            </button>
-          </div>
         </section>
 
         {/* Upload & Chapters list split */}
@@ -453,7 +382,7 @@ export default function Home() {
 
             <div className="flex-1 space-y-2 overflow-y-auto max-h-[220px] pr-1">
               {chapters.length === 0 ? (
-                <p className="text-xs text-slate-500 p-4 text-center">No chapters found. Please seed default sample chapters above or upload NCERT files.</p>
+                <p className="text-xs text-slate-500 p-4 text-center">No chapters found. Please upload textbook & video files below.</p>
               ) : (
                 chapters.map(ch => (
                   <button
@@ -473,22 +402,6 @@ export default function Home() {
                 ))
               )}
             </div>
-
-            {selectedChapterId && (
-              <button
-                onClick={triggerOfflineDownload}
-                className="w-full bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold py-2.5 px-4 rounded-xl shadow-lg shadow-teal-500/25 transition text-xs flex items-center justify-center gap-2"
-              >
-                <Download className="w-4.5 h-4.5" /> Download Offline Package
-              </button>
-            )}
-
-            {downloadProgress && (
-              <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center gap-2 text-xs text-teal-300">
-                <RefreshCw className="w-4 h-4 animate-spin" />
-                <p className="leading-snug">{downloadProgress}</p>
-              </div>
-            )}
           </div>
 
           {/* Upload card */}
@@ -576,160 +489,12 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Tab switcher for workspace details */}
-        <section className="flex border-b border-slate-800/80 gap-6 select-none">
-          <button
-            onClick={() => setActiveTab('study')}
-            className={`pb-3 text-xs md:text-sm font-bold uppercase tracking-wider transition ${
-              activeTab === 'study'
-                ? 'text-teal-400 border-b-2 border-teal-400'
-                : 'text-slate-400 hover:text-white'
-            }`}
-          >
-            Study & Solve Workspace
-          </button>
-          
-          <button
-            onClick={() => setActiveTab('analytics')}
-            className={`pb-3 text-xs md:text-sm font-bold uppercase tracking-wider transition ${
-              activeTab === 'analytics'
-                ? 'text-teal-400 border-b-2 border-teal-400'
-                : 'text-slate-400 hover:text-white'
-            }`}
-          >
-            Class Analytics Dashboard
-          </button>
-        </section>
-
-        {/* Active Study Panel */}
-        {activeTab === 'study' && chapterDetails && (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-            
-            {/* Left side column: Player & whiteboard */}
-            <div className="lg:col-span-7 space-y-6">
-              <VideoPlayer
-                chapterId={selectedChapterId!}
-                videoUrl={resolveUploadUrl(chapterDetails.video_url) || '#'}
-                formulas={chapterDetails.formulas || []}
-                onAskAI={(contextText, concept) => {
-                  setTutorQuery(contextText);
-                  setTutorConcept(concept);
-                }}
-              />
-
-              <Whiteboard
-                questionId={chapterDetails.questions[0]?.id || "default"}
-                correctAnswer={chapterDetails.questions[0]?.correct_answer || ""}
-              />
-            </div>
-
-            {/* Right side column: practice & tutor */}
-            <div className="lg:col-span-5 space-y-6">
-              <PracticeEngine
-                questions={chapterDetails.questions as QuestionData[]}
-              />
-
-              <AITutor
-                chapterId={selectedChapterId!}
-                initialQuery={tutorQuery}
-                initialConcept={tutorConcept}
-              />
-            </div>
-          </div>
-        )}
-
-        {/* Active Analytics Panel */}
-        {activeTab === 'analytics' && (
-          <div className="space-y-6">
-            <div className="flex gap-3 justify-end">
-              {[
-                { role: 'student', label: 'Student View', icon: BarChart2 },
-                { role: 'parent', label: 'Parent Monitoring', icon: ShieldAlert },
-                { role: 'teacher', label: 'Teacher Admin', icon: Users }
-              ].map(item => (
-                <button
-                  key={item.role}
-                  onClick={() => setDashboardRole(item.role as any)}
-                  className={`text-xs font-bold px-4 py-2 rounded-xl flex items-center gap-1.5 border transition ${
-                    dashboardRole === item.role
-                      ? 'bg-teal-500/10 border-teal-500/40 text-teal-300'
-                      : 'bg-slate-900/30 border-slate-800 hover:bg-slate-850'
-                  }`}
-                >
-                  <item.icon className="w-4.5 h-4.5" /> {item.label}
-                </button>
-              ))}
-            </div>
-
-            <div className="animate-fade-in">
-              {dashboardRole === 'student' && (
-                <StudentDashboard
-                  stats={{
-                    student_name: "Aditya Verma",
-                    class_level: selectedClass,
-                    total_learning_time_minutes: 185.0,
-                    current_streak: 4,
-                    mastery_by_chapter: chapters.map((ch, idx) => ({
-                      chapter_number: ch.chapter_number,
-                      chapter_title: ch.title,
-                      mastery_score: idx === 0 ? 82 : 45,
-                      practice_completed: idx === 0 ? 9 : 3
-                    })),
-                    weak_topics: ["Trigonometric angles"],
-                    strong_topics: ["Quadratic factorization"],
-                    radar_skills: {
-                      "Knowledge": 75,
-                      "Understanding": 80,
-                      "Application": 60,
-                      "Reasoning": 70,
-                      "Analysis": 50,
-                      "Problem Solving": 68
-                    }
-                  }}
-                />
-              )}
-
-              {dashboardRole === 'parent' && (
-                <ParentDashboard
-                  stats={{
-                    student_name: "Aditya Verma",
-                    class_level: selectedClass,
-                    daily_study_time_average_minutes: 42.0,
-                    total_learning_time_hours: 3.2,
-                    practice_completed: 12,
-                    learning_trend: [
-                      { date: 'Mon', minutes: 30 },
-                      { date: 'Tue', minutes: 45 },
-                      { date: 'Wed', minutes: 20 },
-                      { date: 'Thu', minutes: 50 },
-                      { date: 'Fri', minutes: 15 },
-                      { date: 'Sat', minutes: 90 },
-                      { date: 'Sun', minutes: 40 }
-                    ],
-                    message: "Aditya is showing great focus on math chapters but needs revision on formula listings this weekend."
-                  }}
-                />
-              )}
-
-              {dashboardRole === 'teacher' && (
-                <TeacherDashboard
-                  stats={{
-                    class_level: selectedClass,
-                    total_students: 24,
-                    class_average_mastery: 68.0,
-                    common_mistakes: [
-                      "Arithmetic signs confusion in step factorization",
-                      "Standard trigonometric values confusion for angles 45 and 60"
-                    ],
-                    students_performance: [
-                      { name: "Aditya Verma", average_mastery: 82, completed_chapters: 2 },
-                      { name: "Preeti Sharma", average_mastery: 55, completed_chapters: 1 },
-                      { name: "Rohan Das", average_mastery: 70, completed_chapters: 2 }
-                    ]
-                  }}
-                />
-              )}
-            </div>
+        {/* Active Study Panel - MCQ Section Only */}
+        {chapterDetails && (
+          <div className="max-w-4xl mx-auto space-y-6">
+            <PracticeEngine
+              questions={chapterDetails.questions as QuestionData[]}
+            />
           </div>
         )}
       </main>
