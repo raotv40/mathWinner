@@ -11,7 +11,7 @@ import StudentDashboard from '../components/dashboards/student';
 import ParentDashboard from '../components/dashboards/parent';
 import TeacherDashboard from '../components/dashboards/teacher';
 
-import { fetchChapters, fetchChapter, downloadChapterOffline, isOnline as checkOnline } from '../lib/api';
+import { fetchChapters, fetchChapter, downloadChapterOffline, isOnline as checkOnline, API_BASE_URL } from '../lib/api';
 import { db } from '../lib/db';
 
 export default function Home() {
@@ -96,7 +96,7 @@ export default function Home() {
           qs = await db.questions.where('chapter_id').equals(selectedChapterId!).toArray();
         } else {
           // fetch from api helper
-          const res = await fetch(`http://localhost:8000/api/v1/practice/${selectedChapterId}`);
+          const res = await fetch(`${API_BASE_URL}/practice/${selectedChapterId}`);
           if (res.ok) qs = await res.json();
         }
         
@@ -142,7 +142,7 @@ export default function Home() {
   const handleSeedData = async () => {
     setIsSeeding(true);
     try {
-      const res = await fetch('http://localhost:8000/api/v1/admin/seed', { method: 'POST' });
+      const res = await fetch(`${API_BASE_URL}/admin/seed`, { method: 'POST' });
       const msg = await res.json();
       alert(msg.message || "Seeding complete!");
       await loadChaptersList();
@@ -205,7 +205,7 @@ export default function Home() {
     formData.append("video", videoFile);
 
     try {
-      const res = await fetch('http://localhost:8000/api/v1/chapters/upload', {
+      const res = await fetch(`${API_BASE_URL}/chapters/upload`, {
         method: 'POST',
         body: formData
       });
@@ -218,7 +218,7 @@ export default function Home() {
       }, 5000);
     } catch (err) {
       console.error(err);
-      setUploadProgress("Failed to upload. Ensure FastAPI is running on port 8000.");
+      setUploadProgress("Failed to upload. Ensure backend API is online.");
     }
   };
 
