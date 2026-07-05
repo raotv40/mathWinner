@@ -59,7 +59,8 @@ export default function Home() {
     try {
       const data = await fetchChapters(selectedClass);
       setChapters(data);
-      if (data.length > 0 && !selectedChapterId) {
+      const hasSelected = data.some(ch => ch.id === selectedChapterId);
+      if (data.length > 0 && (!selectedChapterId || !hasSelected)) {
         setSelectedChapterId(data[0].id);
       }
     } catch (err) {
@@ -212,9 +213,14 @@ export default function Home() {
       if (!res.ok) throw new Error("Upload failed");
       const data = await res.json();
       setUploadProgress("Extracting PDF concepts & transcribing video audio in background...");
-      setTimeout(() => {
+      
+      // Auto-switch filter and select the newly uploaded chapter
+      setSelectedClass(uploadClass);
+      setSelectedChapterId(data.id);
+      
+      setTimeout(async () => {
         setUploadProgress(null);
-        loadChaptersList();
+        await loadChaptersList();
       }, 5000);
     } catch (err) {
       console.error(err);
