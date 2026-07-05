@@ -18,6 +18,57 @@ interface VideoPlayerProps {
   onAskAI?: (contextText: string, concept: string) => void;
 }
 
+function formatFormulaText(formula: string): string {
+  if (!formula) return '';
+  let result = formula;
+  
+  // Replace spacing markers
+  result = result.replace(/\\,/g, ' ');
+  result = result.replace(/\\;/g, ' ');
+  result = result.replace(/\\quad/g, '   ');
+  
+  // Extract text from \text{...}
+  result = result.replace(/\\text\{([^}]+)\}/g, '$1');
+  
+  // Replace Greek letters
+  result = result.replace(/\\theta/g, 'θ');
+  result = result.replace(/\\pi/g, 'π');
+  result = result.replace(/\\alpha/g, 'α');
+  result = result.replace(/\\beta/g, 'β');
+  result = result.replace(/\\gamma/g, 'γ');
+  result = result.replace(/\\delta/g, 'δ');
+  
+  // Replace common trigonometric and math functions
+  result = result.replace(/\\sin/g, 'sin');
+  result = result.replace(/\\cos/g, 'cos');
+  result = result.replace(/\\tan/g, 'tan');
+  result = result.replace(/\\cot/g, 'cot');
+  result = result.replace(/\\sec/g, 'sec');
+  result = result.replace(/\\csc/g, 'csc');
+  
+  // Replace superscripts
+  result = result.replace(/\^2/g, '²');
+  result = result.replace(/\^3/g, '³');
+  result = result.replace(/\^n/g, 'ⁿ');
+  
+  // Replace symbols
+  result = result.replace(/\\circ/g, '°');
+  result = result.replace(/\\times/g, '×');
+  result = result.replace(/\\div/g, '÷');
+  result = result.replace(/\\pm/g, '±');
+  result = result.replace(/\\le/g, '≤');
+  result = result.replace(/\\ge/g, '≥');
+  result = result.replace(/\\ne/g, '≠');
+  
+  // Remove remaining backslashes
+  result = result.replace(/\\/g, '');
+  
+  // Clean up whitespace
+  result = result.replace(/\s+/g, ' ').trim();
+  
+  return result;
+}
+
 export default function VideoPlayer({ chapterId, videoUrl, formulas, onAskAI }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const transcriptContainerRef = useRef<HTMLDivElement>(null);
@@ -196,7 +247,7 @@ export default function VideoPlayer({ chapterId, videoUrl, formulas, onAskAI }: 
               <Brain className="w-5 h-5 text-teal-400 shrink-0" />
               <div>
                 <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Concept Formula</p>
-                <p className="text-sm font-mono text-teal-200">{activeFormula.formula}</p>
+                <p className="text-sm font-mono text-teal-200">{formatFormulaText(activeFormula.formula)}</p>
               </div>
             </div>
           )}
