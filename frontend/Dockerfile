@@ -18,6 +18,7 @@ COPY . .
 # Learn more here: https://nextjs.org/telemetry
 # Disable telemetry during the build.
 ENV NEXT_TELEMETRY_DISABLED=1
+ENV STANDALONE_BUILD=true
 
 RUN npm run build
 
