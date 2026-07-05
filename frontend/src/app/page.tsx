@@ -34,7 +34,6 @@ export default function Home() {
   const [uploadProgress, setUploadProgress] = useState<string | null>(null);
   
   // Form Upload state
-  const [uploadClass, setUploadClass] = useState(10);
   const [uploadNum, setUploadNum] = useState(1);
   const [uploadTitle, setUploadTitle] = useState('');
 
@@ -138,7 +137,7 @@ export default function Home() {
     setUploadProgress("Uploading files (0%)...");
     
     const formData = new FormData();
-    formData.append("class_level", uploadClass.toString());
+    formData.append("class_level", selectedClass.toString());
     formData.append("chapter_number", uploadNum.toString());
     formData.append("title", uploadTitle);
     formData.append("pdf", pdfFile);
@@ -153,8 +152,7 @@ export default function Home() {
       const data = await res.json();
       setUploadProgress("Extracting PDF concepts & transcribing video audio in background...");
       
-      // Auto-switch filter and select the newly uploaded chapter
-      setSelectedClass(uploadClass);
+      // Auto-select the newly uploaded chapter
       setSelectedChapterId(data.id);
       
       setTimeout(async () => {
@@ -431,8 +429,8 @@ export default function Home() {
                       type="number"
                       min={1}
                       max={12}
-                      value={uploadClass}
-                      onChange={(e) => setUploadClass(parseInt(e.target.value))}
+                      value={selectedClass}
+                      onChange={(e) => setSelectedClass(parseInt(e.target.value) || 1)}
                       className="w-full bg-slate-950 border border-slate-850 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-teal-500"
                     />
                   </div>
