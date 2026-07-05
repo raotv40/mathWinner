@@ -107,6 +107,14 @@ export default function VideoPlayer({ chapterId, videoUrl, formulas, onAskAI }: 
     setDuration(videoRef.current.duration);
   };
 
+  const handleVideoError = () => {
+    console.warn("Video failed to load, falling back to placeholder stream.");
+    const fallbackUrl = "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4";
+    if (videoSrc !== fallbackUrl) {
+      setVideoSrc(fallbackUrl);
+    }
+  };
+
   const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!videoRef.current) return;
     const time = parseFloat(e.target.value);
@@ -179,6 +187,7 @@ export default function VideoPlayer({ chapterId, videoUrl, formulas, onAskAI }: 
             onTimeUpdate={handleTimeUpdate}
             onLoadedMetadata={handleLoadedMetadata}
             onClick={togglePlay}
+            onError={handleVideoError}
           />
 
           {/* Formula Overlay */}
