@@ -44,19 +44,30 @@ export default function VideoPlayer({ chapterId, videoUrl, formulas, onAskAI }: 
   // Load local blob if offline
   useEffect(() => {
     async function loadOfflineVideo() {
+      let hasLocal = false;
       try {
         const fileRecord = await db.files.get(chapterId);
         if (fileRecord?.videoBlob) {
           const localUrl = URL.createObjectURL(fileRecord.videoBlob);
           setVideoSrc(localUrl);
           console.log("Loaded video from IndexedDB storage!");
+          hasLocal = true;
         }
       } catch (err) {
         console.warn("Could not load local video blob:", err);
       }
+
+      if (!hasLocal) {
+        if (videoUrl.includes('mock_chapter') || videoUrl === '#' || !videoUrl) {
+          // Reliable public educational placeholder video stream
+          setVideoSrc("https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4");
+        } else {
+          setVideoSrc(videoUrl);
+        }
+      }
     }
     loadOfflineVideo();
-  }, [chapterId]);
+  }, [chapterId, videoUrl]);
 
   // Sync concept timeline
   useEffect(() => {
