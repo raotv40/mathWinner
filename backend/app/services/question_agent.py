@@ -245,8 +245,13 @@ class QuestionAgent:
             video_str = "\n".join([f"[{s.get('start_time')}s]: {s.get('text')}" for s in video_segments[:10]])
             
         prompt = f"""
-        You are a K-12 Mathematics AI Teacher.
+        You are a K-12 Mathematics AI Teacher specializing in CBSE academic standards.
         Generate {count} unique, high-quality multiple choice practice questions for the math chapter: "{chapter_title}".
+        
+        CRITICAL ASSESSMENT STANDARDS (SAFAL & NEP 2020):
+        1. Aligned to SAFAL (Structured Assessment for Analyzing Learning): Shift focus away from rote memorization. Questions must test core conceptual understanding, critical thinking, logical reasoning, and real-life application of knowledge.
+        2. Expected Outcomes Mapping: You MUST ensure that all chapter expected outcomes/concepts listed below are tested. Distribute the questions evenly across the provided textbook concepts so that no concept is left untested.
+        3. Competency Focus: At least 3 questions must be case-based or real-world competency scenarios where students apply mathematical concepts to solve practical situations.
         
         CRITICAL: The questions MUST be directly grounded on and relevant to the concepts and teacher explanations from the video transcript and textbook context below.
         
