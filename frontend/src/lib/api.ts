@@ -98,12 +98,12 @@ export async function downloadChapterOffline(chapterId: string, onProgress?: (ms
 
   // Download PDF file
   if (onProgress) onProgress("Downloading NCERT textbook PDF for offline viewing...");
-  const pdfRes = await fetch(data.chapter.pdf_url);
+  const pdfRes = await fetch(resolveUploadUrl(data.chapter.pdf_url));
   const pdfBlob = await pdfRes.blob();
 
   // Download Video file
   if (onProgress) onProgress("Downloading Teacher video lesson (this might take a few moments)...");
-  const videoRes = await fetch(data.chapter.video_url);
+  const videoRes = await fetch(resolveUploadUrl(data.chapter.video_url));
   const videoBlob = await videoRes.blob();
 
   // Save files to Dexie Blob Storage
@@ -201,4 +201,13 @@ export async function evaluateWhiteboard(
   });
   if (!res.ok) throw new Error("Evaluation request failed");
   return await res.json();
+}
+
+export function resolveUploadUrl(url: string | undefined): string {
+  if (!url) return '';
+  if (url.startsWith('/uploads/')) {
+    const host = API_BASE_URL.replace('/api/v1', '');
+    return `${host}${url}`;
+  }
+  return url;
 }

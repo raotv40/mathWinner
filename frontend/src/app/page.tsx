@@ -11,7 +11,7 @@ import StudentDashboard from '../components/dashboards/student';
 import ParentDashboard from '../components/dashboards/parent';
 import TeacherDashboard from '../components/dashboards/teacher';
 
-import { fetchChapters, fetchChapter, downloadChapterOffline, isOnline as checkOnline, API_BASE_URL } from '../lib/api';
+import { fetchChapters, fetchChapter, downloadChapterOffline, isOnline as checkOnline, API_BASE_URL, resolveUploadUrl } from '../lib/api';
 import { db } from '../lib/db';
 
 export default function Home() {
@@ -603,7 +603,7 @@ export default function Home() {
             <div className="lg:col-span-7 space-y-6">
               <VideoPlayer
                 chapterId={selectedChapterId!}
-                videoUrl={chapterDetails.chapter?.video_url || '#'}
+                videoUrl={resolveUploadUrl(chapterDetails.chapter?.video_url) || '#'}
                 formulas={chapterDetails.chapter?.formulas || []}
                 onAskAI={(contextText, concept) => {
                   setTutorQuery(contextText);
