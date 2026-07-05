@@ -268,6 +268,14 @@ export default function Home() {
               <div>
                 <h3 className="text-sm font-bold text-white uppercase tracking-wider">NCERT Course Mapping</h3>
                 <p className="text-xs text-slate-400 mt-2 leading-relaxed">Upload official textbooks. The AI automatically maps complex chapters into structured formulas and visual concept connections.</p>
+                <a 
+                  href="https://ncert.nic.in/textbook.php?eemh1=0-14" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="inline-flex items-center gap-1 text-[11px] font-bold text-teal-400 hover:text-teal-300 mt-3 transition duration-200"
+                >
+                  Download NCERT Books <ChevronRight className="w-3.5 h-3.5" />
+                </a>
               </div>
             </div>
 
@@ -524,7 +532,17 @@ export default function Home() {
 
               <div className="space-y-3">
                 <div>
-                  <label className="text-[10px] text-slate-400 font-bold uppercase block mb-1">NCERT PDF File (Max 200MB)</label>
+                  <div className="flex justify-between items-center mb-1">
+                    <label className="text-[10px] text-slate-400 font-bold uppercase">NCERT PDF File (Max 200MB)</label>
+                    <a 
+                      href="https://ncert.nic.in/textbook.php?eemh1=0-14" 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      className="text-[9px] text-teal-400 hover:text-teal-300 font-bold flex items-center gap-0.5"
+                    >
+                      Find NCERT Books ↗
+                    </a>
+                  </div>
                   <input type="file" name="pdf" accept=".pdf" required className="w-full text-xs text-slate-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-teal-300 file:cursor-pointer hover:file:bg-slate-700" />
                 </div>
                 <div>
