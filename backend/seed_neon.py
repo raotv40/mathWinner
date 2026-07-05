@@ -20,11 +20,18 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
     raise ValueError("DATABASE_URL environment variable is not set in .env file")
 
+db_url = DATABASE_URL
+connect_args = {}
+if "neon.tech" in db_url:
+    connect_args = {"ssl": "require"}
+    if "?" in db_url:
+        db_url = db_url.split("?")[0]
+
 async def main():
     print("Connecting to Neon remote database...")
     engine = create_async_engine(
-        DATABASE_URL,
-        connect_args={"ssl": "require"},
+        db_url,
+        connect_args=connect_args,
         echo=False
     )
     

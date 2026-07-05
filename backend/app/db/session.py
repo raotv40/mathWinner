@@ -1,12 +1,15 @@
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from app.core.config import settings
 
+db_url = settings.DATABASE_URL
 connect_args = {}
-if "neon.tech" in settings.DATABASE_URL:
+if "neon.tech" in db_url:
     connect_args = {"ssl": "require"}
+    if "?" in db_url:
+        db_url = db_url.split("?")[0]
 
 engine = create_async_engine(
-    settings.DATABASE_URL,
+    db_url,
     echo=False,
     future=True,
     pool_pre_ping=True,
