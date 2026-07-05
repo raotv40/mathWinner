@@ -131,7 +131,12 @@ async def process_chapter_files_bg(
             db.add(emb)
             
         # 3. Generate initial Practice Questions using QuestionAgent
-        questions = QuestionAgent.generate_questions(chapter_title, count=6)
+        questions = await QuestionAgent.generate_questions(
+            chapter_title, 
+            count=6, 
+            concepts=pdf_data.get("concepts"), 
+            video_segments=video_data.get("segments")
+        )
         for q in questions:
             concept_title_guess = q.get("concept_title")
             concept_id = concept_mapping.get(concept_title_guess) if concept_title_guess else None

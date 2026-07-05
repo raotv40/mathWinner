@@ -3,11 +3,26 @@ from typing import Dict, Any, List
 
 class QuestionAgent:
     @staticmethod
-    def generate_questions(chapter_title: str, count: int = 5) -> List[Dict[str, Any]]:
+    async def generate_questions(
+        chapter_title: str, 
+        count: int = 6,
+        concepts: List[Dict[str, Any]] = None,
+        video_segments: List[Dict[str, Any]] = None
+    ) -> List[Dict[str, Any]]:
         """
         Generates practice questions of different categories (board, olympiad, HOTS, competency)
-        and difficulties (easy, medium, hard) for a given chapter.
+        and difficulties (easy, medium, hard) for a given chapter, utilizing OpenAI if key is present.
         """
+        from app.core.config import settings
+        
+        if settings.OPENAI_API_KEY:
+            try:
+                live_qs = await QuestionAgent._generate_with_openai(chapter_title, concepts, video_segments, count)
+                if live_qs and len(live_qs) > 0:
+                    return live_qs
+            except Exception as e:
+                print(f"Failed live AI question generation, falling back to simulation pool: {e}")
+                
         title_lower = chapter_title.lower()
         questions = []
         
@@ -209,3 +224,64 @@ class QuestionAgent:
         count = min(count, len(pool))
         selected = [item.copy() for item in random.sample(pool, count)]
         return selected
+
+    @staticmethod
+    async def _generate_with_openai(
+        chapter_title: str,
+        concepts: List[Dict[str, Any]],
+        video_segments: List[Dict[str, Any]],
+        count: int
+    ) -> List[Dict[str, Any]]:
+        from openai import AsyncOpenAI
+        from app.core.config import settings
+        
+        client = AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
+        
+        # Prepare context from concepts and video transcript segments
+        concepts_str = "\n".join([f"- {c['title']}: {c['description']}" for c in (concepts or [])])
+        
+        video_str = ""
+        if video_segments:
+            video_str = "\n".join([f"[{s.get('start_time')}s]: {s.get('text')}" for s in video_segments[:10]])
+            
+        prompt = f"""
+        You are a K-12 Mathematics AI Teacher.
+        Generate {count} unique, high-quality multiple choice practice questions for the math chapter: "{chapter_title}".
+        
+        CRITICAL: The questions MUST be directly grounded on and relevant to the concepts and teacher explanations from the video transcript and textbook context below.
+        
+        Textbook Concepts:
+        {concepts_str}
+        
+        Teacher Video Explanations (Excerpt):
+        {video_str}
+        
+        Return a strict JSON payload containing a list of questions under the "questions" key.
+        Each question object MUST strictly match the following JSON format:
+        {{
+            "difficulty": "easy" or "medium" or "hard",
+            "category": "board" or "olympiad" or "hots" or "competency",
+            "question_text": "Clean question text. Do NOT use LaTeX $ or $$ delimiters. Output standard readable math equations directly.",
+            "question_type": "mcq",
+            "options": ["Option A", "Option B", "Option C", "Option D"],
+            "correct_answer": "The exact string matching one of the options",
+            "hints": ["Hint 1", "Hint 2"],
+            "step_by_step_solution": [
+                {{"step": "1", "instruction": "Step 1 details"}},
+                {{"step": "2", "instruction": "Step 2 details"}}
+            ]
+        }}
+        """
+        
+        try:
+            response = await client.chat.completions.create(
+                model="gpt-4o",
+                response_format={"type": "json_object"},
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.7
+            )
+            data = json.loads(response.choices[0].message.content)
+            return data.get("questions", [])
+        except Exception as e:
+            print(f"OpenAI question generation failed: {e}")
+            return []
