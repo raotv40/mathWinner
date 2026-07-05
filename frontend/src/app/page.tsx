@@ -39,14 +39,65 @@ export default function Home() {
   const [uploadNum, setUploadNum] = useState(1);
   const [uploadTitle, setUploadTitle] = useState('');
 
+  // Selected video source blob URL / fallbacks
+  const [videoSrc, setVideoSrc] = useState<string>('#');
+
+  // Custom chapter selector wrapping localStorage sync
+  const selectChapter = (id: string | null) => {
+    setSelectedChapterId(id);
+    if (id) {
+      localStorage.setItem('mathwinner_selected_chapter_id', id);
+    } else {
+      localStorage.removeItem('mathwinner_selected_chapter_id');
+    }
+  };
+
+  useEffect(() => {
+    if (!selectedChapterId) {
+      setVideoSrc('#');
+      return;
+    }
+    
+    async function resolveMedia() {
+      // 1. Try loading from local IndexedDB first
+      try {
+        const fileRecord = await db.files.get(selectedChapterId!);
+        if (fileRecord && fileRecord.videoBlob) {
+          const blobUrl = URL.createObjectURL(fileRecord.videoBlob);
+          setVideoSrc(blobUrl);
+          return;
+        }
+      } catch (err) {
+        console.warn("Failed to read from Dexie files table:", err);
+      }
+      
+      // 2. Fallback to API server resolved URL
+      if (chapterDetails && chapterDetails.video_url) {
+        setVideoSrc(resolveUploadUrl(chapterDetails.video_url));
+      } else {
+        setVideoSrc('#');
+      }
+    }
+    
+    resolveMedia();
+  }, [selectedChapterId, chapterDetails]);
+
   // Load chapters
   const loadChaptersList = async () => {
     try {
       const data = await fetchChapters(selectedClass);
       setChapters(data);
-      const hasSelected = data.some(ch => ch.id === selectedChapterId);
-      if (data.length > 0 && (!selectedChapterId || !hasSelected)) {
-        setSelectedChapterId(data[0].id);
+      
+      const savedId = localStorage.getItem('mathwinner_selected_chapter_id');
+      const hasSaved = data.some(ch => ch.id === savedId);
+      
+      if (hasSaved) {
+        selectChapter(savedId);
+      } else {
+        const hasSelected = data.some(ch => ch.id === selectedChapterId);
+        if (data.length > 0 && (!selectedChapterId || !hasSelected)) {
+          selectChapter(data[0].id);
+        }
       }
     } catch (err) {
       console.warn("Failed to load chapters:", err);
@@ -188,8 +239,19 @@ export default function Home() {
       const data = await res.json();
       setUploadProgress("Extracting PDF concepts & transcribing video audio in background...");
       
+      // Save local blobs for persistence across server restarts
+      try {
+        await db.files.put({
+          id: data.id,
+          pdfBlob: pdfFile,
+          videoBlob: videoFile
+        });
+      } catch (dbErr) {
+        console.warn("Failed to save media blobs to IndexedDB:", dbErr);
+      }
+
       // Auto-select the newly uploaded chapter
-      setSelectedChapterId(data.id);
+      selectChapter(data.id);
       
       setTimeout(async () => {
         setUploadProgress(null);
@@ -421,7 +483,7 @@ export default function Home() {
                 chapters.map(ch => (
                   <button
                     key={ch.id}
-                    onClick={() => setSelectedChapterId(ch.id)}
+                    onClick={() => selectChapter(ch.id)}
                     className={`w-full text-left p-3.5 rounded-2xl border transition flex items-center justify-between gap-4 ${
                       selectedChapterId === ch.id
                         ? 'bg-teal-500/10 border-teal-500/30 text-teal-300'
