@@ -27,6 +27,30 @@ interface PracticeEngineProps {
   onAnswerSubmit?: (questionId: string, isCorrect: boolean) => void;
 }
 
+function formatQuestionText(text: string): string {
+  if (!text) return '';
+  let result = text;
+  
+  // Replace double dollar delimiters $$math$$ with styled or clean text
+  result = result.replace(/\$\$(.*?)\$\$/g, '$1');
+  
+  // Replace single dollar delimiters $math$ with math text
+  result = result.replace(/\$(.*?)\$/g, '$1');
+  
+  // Replace standard LaTeX symbols if present
+  result = result.replace(/\\,/g, ' ');
+  result = result.replace(/\\text\{([^}]+)\}/g, '$1');
+  result = result.replace(/\\sin/g, 'sin');
+  result = result.replace(/\\cos/g, 'cos');
+  result = result.replace(/\\theta/g, 'θ');
+  result = result.replace(/\\times/g, '×');
+  result = result.replace(/\\div/g, '÷');
+  result = result.replace(/\^2/g, '²');
+  result = result.replace(/\^3/g, '³');
+  
+  return result;
+}
+
 export default function PracticeEngine({ questions, onAnswerSubmit }: PracticeEngineProps) {
   const [currentIdx, setCurrentIdx] = useState(0);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
@@ -137,7 +161,7 @@ export default function PracticeEngine({ questions, onAnswerSubmit }: PracticeEn
         <div className="p-5 rounded-2xl bg-slate-950/60 border border-slate-850/80">
           {/* We assume LaTeX gets parsed or printed cleanly */}
           <p className="text-sm md:text-base font-medium text-slate-100 leading-relaxed whitespace-pre-line">
-            {activeQuestion.question_text}
+            {formatQuestionText(activeQuestion.question_text)}
           </p>
         </div>
 
@@ -150,7 +174,7 @@ export default function PracticeEngine({ questions, onAnswerSubmit }: PracticeEn
             <div className="space-y-1.5">
               {activeQuestion.hints.slice(0, hintsRevealed).map((hint, idx) => (
                 <p key={idx} className="text-xs text-slate-300 leading-relaxed">
-                  <span className="font-bold text-teal-500">{idx + 1}.</span> {hint}
+                  <span className="font-bold text-teal-500">{idx + 1}.</span> {formatQuestionText(hint)}
                 </p>
               ))}
             </div>
@@ -185,7 +209,7 @@ export default function PracticeEngine({ questions, onAnswerSubmit }: PracticeEn
                   }`}>
                     {optionLabel}
                   </span>
-                  <span className="text-xs md:text-sm font-medium">{opt}</span>
+                  <span className="text-xs md:text-sm font-medium">{formatQuestionText(opt)}</span>
                 </button>
               );
             })}
@@ -251,7 +275,7 @@ export default function PracticeEngine({ questions, onAnswerSubmit }: PracticeEn
                   {idx + 1}
                 </div>
                 <div className="pt-0.5">
-                  <p className="text-xs md:text-sm text-slate-200 whitespace-pre-line leading-relaxed">{step.instruction}</p>
+                  <p className="text-xs md:text-sm text-slate-200 whitespace-pre-line leading-relaxed">{formatQuestionText(step.instruction)}</p>
                 </div>
               </div>
             ))}
@@ -270,7 +294,7 @@ export default function PracticeEngine({ questions, onAnswerSubmit }: PracticeEn
             <p className="text-xs text-slate-300 mt-0.5">
               {isCorrect 
                 ? 'Your answer is 100% correct. You have gained +15 mastery score points.' 
-                : `The correct option is: "${activeQuestion.correct_answer}". Click the step solver above to inspect the logical resolution.`}
+                : `The correct option is: "${formatQuestionText(activeQuestion.correct_answer)}". Click the step solver above to inspect the logical resolution.`}
             </p>
           </div>
         </div>
