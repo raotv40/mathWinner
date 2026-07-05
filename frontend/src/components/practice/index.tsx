@@ -66,6 +66,7 @@ export default function PracticeEngine({ questions, onAnswerSubmit }: PracticeEn
   // Quiz completion and score tracking
   const [quizCompleted, setQuizCompleted] = useState(false);
   const [score, setScore] = useState(0);
+  const [incorrectQuestions, setIncorrectQuestions] = useState<QuestionData[]>([]);
 
   // Reset quiz state when active questions array changes
   React.useEffect(() => {
@@ -78,6 +79,7 @@ export default function PracticeEngine({ questions, onAnswerSubmit }: PracticeEn
     setShowAnswer(false);
     setQuizCompleted(false);
     setScore(0);
+    setIncorrectQuestions([]);
   }, [questions]);
 
   const activeQuestion = questions[currentIdx];
@@ -106,6 +108,42 @@ export default function PracticeEngine({ questions, onAnswerSubmit }: PracticeEn
             <p className="text-[10px] text-slate-500 font-bold uppercase">Score</p>
             <p className="text-xl font-bold text-white mt-1">{score} / {questions.length}</p>
           </div>
+        </div>
+
+        {/* Opportunities for Improvement */}
+        <div className="w-full bg-slate-950/40 border border-slate-850 p-5 rounded-2xl text-left space-y-3">
+          <h4 className="text-xs font-bold text-teal-400 uppercase tracking-wider flex items-center gap-1.5">
+            <Lightbulb className="w-4 h-4" /> Opportunities for Improvement
+          </h4>
+          
+          {incorrectQuestions.length === 0 ? (
+            <p className="text-xs text-emerald-400 font-medium leading-relaxed">
+              ✨ Outstanding! You got a perfect score. You have fully mastered all concepts in this practice set. Try a harder class level or class syllabus!
+            </p>
+          ) : (
+            <div className="space-y-2">
+              <p className="text-[11px] text-slate-400 leading-relaxed mb-1">
+                Based on your diagnostic errors, review the following learning indicators:
+              </p>
+              <ul className="list-disc pl-4 space-y-2 text-xs text-slate-300">
+                {Array.from(new Set(incorrectQuestions.map(q => {
+                  const txt = q.question_text.toLowerCase();
+                  if (txt.includes("convert") || txt.includes("km") || txt.includes("cm") || txt.includes("meter")) {
+                    return "Metric Unit Conversions: Focus on multiplying/dividing by conversion factors (e.g., 1 km = 1000m, 1m = 100cm).";
+                  }
+                  if (txt.includes("perimeter") || txt.includes("rectangle") || txt.includes("square")) {
+                    return "Geometric Perimeters: Practice calculating boundaries using formulas (Rectangle P = 2 × (L + W)).";
+                  }
+                  if (txt.includes("equation") || txt.includes("solve")) {
+                    return "Equation Solving: Practice isolating variables step-by-step (adding/subtracting constants, then dividing).";
+                  }
+                  return `Concept reinforcement: Revise worked examples for "${q.question_text.substring(0, 40)}..."`;
+                }))).map((recommendation, idx) => (
+                  <li key={idx} className="leading-relaxed">{recommendation}</li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
 
         <div className="flex flex-col gap-2 w-full">
@@ -162,6 +200,8 @@ export default function PracticeEngine({ questions, onAnswerSubmit }: PracticeEn
         origin: { y: 0.8 },
         colors: ['#2dd4bf', '#3b82f6', '#10b981']
       });
+    } else {
+      setIncorrectQuestions(prev => [...prev, activeQuestion]);
     }
 
     if (onAnswerSubmit) {
