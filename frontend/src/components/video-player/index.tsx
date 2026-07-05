@@ -66,6 +66,7 @@ export default function VideoPlayer({ chapterId, videoUrl, formulas, onAskAI }: 
           setVideoSrc(urlStr);
         }
       }
+      setIsPlaying(false);
     }
     loadOfflineVideo();
   }, [chapterId, videoUrl]);
@@ -170,6 +171,7 @@ export default function VideoPlayer({ chapterId, videoUrl, formulas, onAskAI }: 
       <div className="lg:col-span-2 flex flex-col gap-4">
         <div className="relative aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl border border-slate-800 group">
           <video
+            key={videoSrc}
             ref={videoRef}
             src={videoSrc}
             className="w-full h-full object-cover"
