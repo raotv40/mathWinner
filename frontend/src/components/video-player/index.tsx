@@ -61,7 +61,7 @@ export default function VideoPlayer({ chapterId, videoUrl, formulas, onAskAI }: 
         const urlStr = videoUrl || '';
         if (urlStr.includes('mock_chapter') || urlStr === '#' || !urlStr) {
           // Reliable public educational placeholder video stream
-          setVideoSrc("https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4");
+          setVideoSrc("https://www.w3schools.com/html/mov_bbb.mp4");
         } else {
           setVideoSrc(urlStr);
         }
@@ -174,6 +174,7 @@ export default function VideoPlayer({ chapterId, videoUrl, formulas, onAskAI }: 
             key={videoSrc}
             ref={videoRef}
             src={videoSrc}
+            controls
             className="w-full h-full object-cover"
             onTimeUpdate={handleTimeUpdate}
             onLoadedMetadata={handleLoadedMetadata}
@@ -182,7 +183,7 @@ export default function VideoPlayer({ chapterId, videoUrl, formulas, onAskAI }: 
 
           {/* Formula Overlay */}
           {activeFormula && (
-            <div className="absolute top-4 left-4 bg-slate-900/80 backdrop-blur-md px-4 py-2 rounded-xl border border-teal-500/30 flex items-center gap-2 max-w-[80%] animate-pulse">
+            <div className="absolute top-4 left-4 bg-slate-900/80 backdrop-blur-md px-4 py-2 rounded-xl border border-teal-500/30 flex items-center gap-2 max-w-[80%] animate-pulse z-20">
               <Brain className="w-5 h-5 text-teal-400 shrink-0" />
               <div>
                 <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Concept Formula</p>
@@ -194,7 +195,7 @@ export default function VideoPlayer({ chapterId, videoUrl, formulas, onAskAI }: 
           {/* Big center play icon on hover when paused */}
           {!isPlaying && (
             <div 
-              className="absolute inset-0 flex items-center justify-center bg-black/30 cursor-pointer"
+              className="absolute inset-0 flex items-center justify-center bg-black/30 cursor-pointer z-20"
               onClick={togglePlay}
             >
               <div className="w-16 h-16 rounded-full bg-teal-500/95 flex items-center justify-center shadow-lg shadow-teal-500/35 transition hover:scale-110">
@@ -204,7 +205,7 @@ export default function VideoPlayer({ chapterId, videoUrl, formulas, onAskAI }: 
           )}
 
           {/* Custom Controls Bar */}
-          <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-slate-950/95 via-slate-950/60 to-transparent p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col gap-3">
+          <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-slate-950/95 via-slate-950/60 to-transparent p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col gap-3 z-20">
             {/* Timeline slider */}
             <input
               type="range"
