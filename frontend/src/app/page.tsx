@@ -516,15 +516,28 @@ export default function Home() {
                   <button
                     key={ch.id}
                     onClick={() => selectChapter(ch.id)}
-                    className={`w-full text-left p-3.5 rounded-2xl border transition flex items-center justify-between gap-4 ${
+                    className={`w-full text-left p-3 rounded-2xl border transition flex items-center gap-3.5 ${
                       selectedChapterId === ch.id
                         ? 'bg-teal-500/10 border-teal-500/30 text-teal-300'
                         : 'bg-slate-950/40 border-slate-850 hover:bg-slate-850/40'
                     }`}
                   >
-                    <div>
+                    {/* Tiny Video Thumbnail Preview */}
+                    <div className="w-12 h-8 rounded-lg overflow-hidden border border-slate-800 bg-slate-950 shrink-0 relative">
+                      <video 
+                        src={ch.video_url ? resolveUploadUrl(ch.video_url) : '#'} 
+                        preload="metadata" 
+                        muted
+                        className="w-full h-full object-cover" 
+                      />
+                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                        <Play className="w-2.5 h-2.5 text-white fill-white translate-x-[0.5px]" />
+                      </div>
+                    </div>
+
+                    <div className="flex-1 min-w-0">
                       <span className="text-[9px] font-bold text-slate-400 uppercase">Chapter {ch.chapter_number}</span>
-                      <h4 className="text-xs font-bold text-white mt-1 leading-snug">{ch.title}</h4>
+                      <h4 className="text-xs font-bold text-white mt-0.5 leading-snug truncate">{ch.title}</h4>
                     </div>
                   </button>
                 ))
@@ -561,31 +574,14 @@ export default function Home() {
                       </div>
                     </div>
 
-                    <div className="space-y-4">
-                      <div className="bg-slate-950/40 p-4 rounded-2xl border border-slate-850 space-y-2">
-                        <span className="text-[10px] text-slate-500 font-bold uppercase block mb-1">Uploaded Content Status</span>
+                    <div className="space-y-3 bg-slate-950/40 p-4 rounded-2xl border border-slate-850">
+                      <span className="text-[10px] text-slate-500 font-bold uppercase block mb-1">Uploaded Content Status</span>
+                      <div className="space-y-2">
                         <div className="flex items-center gap-2 text-xs text-emerald-400 font-medium">
                           <CheckCircle2 className="w-4.5 h-4.5" /> NCERT Textbook PDF (Loaded)
                         </div>
                         <div className="flex items-center gap-2 text-xs text-emerald-400 font-medium">
                           <CheckCircle2 className="w-4.5 h-4.5" /> Teacher Video Lesson (Loaded)
-                        </div>
-                      </div>
-                      
-                      <div className="space-y-1.5">
-                        <span className="text-[10px] text-slate-500 font-bold uppercase block">Video Thumbnail</span>
-                        <div className="relative aspect-video w-full rounded-2xl overflow-hidden border border-slate-850 bg-slate-950">
-                          <video 
-                            src={videoSrc} 
-                            preload="metadata" 
-                            muted
-                            className="w-full h-full object-cover animate-fade-in" 
-                          />
-                          <div className="absolute inset-0 bg-slate-950/45 flex items-center justify-center">
-                            <div className="w-8 h-8 rounded-full bg-teal-500/90 flex items-center justify-center shadow-md shadow-teal-500/20">
-                              <Play className="w-4 h-4 text-slate-950 fill-slate-950 translate-x-0.5" />
-                            </div>
-                          </div>
                         </div>
                       </div>
                     </div>
