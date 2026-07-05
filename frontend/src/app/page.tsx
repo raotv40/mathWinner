@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { BookOpen, Upload, Download, Sparkles, AlertCircle, Wifi, WifiOff, RefreshCw, BarChart2, ShieldAlert, Users, Trash2, Brain, Video, CheckCircle2, ChevronRight, GraduationCap, FileText } from 'lucide-react';
 
 import PracticeEngine, { QuestionData } from '../components/practice';
+import VideoPlayer from '../components/video-player';
 
 import { fetchChapters, fetchChapter, downloadChapterOffline, isOnline as checkOnline, API_BASE_URL, resolveUploadUrl } from '../lib/api';
 import { db } from '../lib/db';
@@ -26,6 +27,7 @@ export default function Home() {
   const [chapters, setChapters] = useState<any[]>([]);
   const [selectedChapterId, setSelectedChapterId] = useState<string | null>(null);
   const [chapterDetails, setChapterDetails] = useState<any | null>(null);
+  const [mcqUnlocked, setMcqUnlocked] = useState(false);
   
   // Simulation of connection toggle for testing
   const [onlineStatus, setOnlineStatus] = useState(true);
@@ -71,6 +73,8 @@ export default function Home() {
       return;
     }
     
+    setMcqUnlocked(false);
+    
     async function loadDetails() {
       try {
         const details = await fetchChapter(selectedChapterId!);
@@ -84,24 +88,56 @@ export default function Home() {
           if (res.ok) qs = await res.json();
         }
         
+        const isClass5 = details.class_level === 5 || selectedClass === 5;
+        const defaultQuestions = isClass5 ? [
+          {
+            id: "q-class5-1",
+            difficulty: "easy",
+            category: "board",
+            question_text: "Convert 5 kilometers (km) into meters (m).",
+            question_type: "mcq",
+            options: ["50 m", "500 m", "5000 m", "50000 m"],
+            correct_answer: "5000 m",
+            hints: ["Recall that 1 km = 1000 m.", "Multiply 5 by 1000."],
+            step_by_step_solution: [
+              { step: "1", instruction: "Conversion formula: 1 km = 1000 m." },
+              { step: "2", instruction: "Multiply: 5 × 1000 = 5000 m." }
+            ]
+          },
+          {
+            id: "q-class5-2",
+            difficulty: "medium",
+            category: "board",
+            question_text: "A line segment is 2 meters and 45 centimeters long. What is its length in centimeters (cm)?",
+            question_type: "mcq",
+            options: ["245 cm", "2045 cm", "2450 cm", "24.5 cm"],
+            correct_answer: "245 cm",
+            hints: ["1 meter = 100 cm.", "Convert 2 meters to cm and add 45 cm."],
+            step_by_step_solution: [
+              { step: "1", instruction: "Convert meters: 2 m = 200 cm." },
+              { step: "2", instruction: "Add centimeters: 200 cm + 45 cm = 245 cm." }
+            ]
+          }
+        ] : [
+          {
+            id: "q-default-1",
+            difficulty: "medium",
+            category: "board",
+            question_text: "Verify step-by-step the solving of standard CBSE equations of degrees 2.",
+            question_type: "mcq",
+            options: ["x = 5", "x = -5", "x = 0"],
+            correct_answer: "x = 5",
+            hints: ["Isolate variables", "Check values"],
+            step_by_step_solution: [
+              { step: "1", instruction: "Equation: 2x = 10" },
+              { step: "2", instruction: "Divide by 2: x = 5" }
+            ]
+          }
+        ];
+
         setChapterDetails({
           ...details,
-          questions: qs.length > 0 ? qs : [
-            {
-              id: "q-default-1",
-              difficulty: "medium",
-              category: "board",
-              question_text: "Verify step-by-step the solving of standard CBSE equations of degrees 2.",
-              question_type: "mcq",
-              options: ["x = 5", "x = -5", "x = 0"],
-              correct_answer: "x = 5",
-              hints: ["Isolate variables", "Check values"],
-              step_by_step_solution: [
-                { step: "1", instruction: "Equation: 2x = 10" },
-                { step: "2", instruction: "Divide by 2: x = 5" }
-              ]
-            }
-          ]
+          questions: qs.length > 0 ? qs : defaultQuestions
         });
       } catch (err) {
         console.warn("Could not fetch details:", err);
@@ -487,12 +523,67 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Active Study Panel - MCQ Section Only */}
+        {/* Active Study Panel - Video & Toolkit Flow */}
         {chapterDetails && (
-          <div className="max-w-4xl mx-auto space-y-6">
-            <PracticeEngine
-              questions={chapterDetails.questions as QuestionData[]}
-            />
+          <div className="space-y-6">
+            {!mcqUnlocked ? (
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start animate-fade-in">
+                {/* Left side: Video Player */}
+                <div className="lg:col-span-8">
+                  <VideoPlayer
+                    chapterId={selectedChapterId!}
+                    videoUrl={resolveUploadUrl(chapterDetails.video_url) || '#'}
+                    formulas={chapterDetails.formulas || []}
+                  />
+                </div>
+
+                {/* Right side: MathWinner Tool Kit Card */}
+                <div className="lg:col-span-4 bg-slate-900/40 p-6 rounded-3xl border border-slate-800 flex flex-col gap-4">
+                  <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                    <GraduationCap className="w-5 h-5 text-teal-400" /> MathWinner Tool Kit
+                  </h3>
+                  
+                  <div className="relative aspect-video w-full rounded-2xl overflow-hidden border border-slate-800 bg-slate-950">
+                    <img 
+                      src="/mathwinner_toolkit_class5.png" 
+                      alt="MathWinner Toolkit Mockup" 
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+
+                  <div>
+                    <h4 className="text-xs font-bold text-slate-200 uppercase tracking-wide">Class {selectedClass} physical kit</h4>
+                    <p className="text-xs text-slate-400 mt-2 leading-relaxed">
+                      This physical math toolkit contains measuring tapes, conversion cards, and scale instruments. 
+                      Follow along with the video instructions on the left to learn the concepts!
+                    </p>
+                  </div>
+
+                  <button
+                    onClick={() => setMcqUnlocked(true)}
+                    className="w-full bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold py-3 px-4 rounded-xl shadow-lg shadow-teal-500/25 transition text-xs flex items-center justify-center gap-2 mt-2 cursor-pointer"
+                  >
+                    I am ready with the concept, start MCQ Test →
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="max-w-4xl mx-auto space-y-4 animate-fade-in">
+                <div className="flex justify-between items-center px-2">
+                  <button
+                    onClick={() => setMcqUnlocked(false)}
+                    className="text-xs font-bold text-teal-400 hover:text-teal-300 transition flex items-center gap-1 cursor-pointer"
+                  >
+                    ← Review Video & Tool Kit
+                  </button>
+                  <span className="text-[10px] text-slate-500 font-mono">FLOW: 1. Video & Kit (Done) → 2. MCQ Test (Active)</span>
+                </div>
+                
+                <PracticeEngine
+                  questions={chapterDetails.questions as QuestionData[]}
+                />
+              </div>
+            )}
           </div>
         )}
       </main>
