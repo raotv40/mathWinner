@@ -85,6 +85,10 @@ export default function PracticeEngine({ questions, onAnswerSubmit }: PracticeEn
     setIsCorrect(correct);
     setIsSubmitted(true);
     
+    // Auto-reveal all solution steps and final answer on verification
+    setStepsRevealed(activeQuestion.step_by_step_solution.length);
+    setShowAnswer(true);
+    
     if (correct) {
       confetti({
         particleCount: 80,
@@ -220,19 +224,26 @@ export default function PracticeEngine({ questions, onAnswerSubmit }: PracticeEn
       {/* Control Buttons */}
       <div className="flex flex-wrap items-center justify-between gap-4 mt-2">
         <div className="flex gap-2">
-          <button 
-            onClick={revealNextStep} 
-            className="text-xs bg-slate-850 hover:bg-slate-850/80 text-slate-300 px-3.5 py-2.5 rounded-xl border border-slate-800 transition"
-          >
-            {stepsRevealed === 0 ? "Show Step-by-Step Solver" : `Reveal Step ${stepsRevealed + 1}`}
-          </button>
+          {!isSubmitted && stepsRevealed < activeQuestion.step_by_step_solution.length && (
+            <button 
+              onClick={revealNextStep} 
+              className="text-xs bg-slate-850 hover:bg-slate-850/80 text-slate-300 px-3.5 py-2.5 rounded-xl border border-slate-800 transition cursor-pointer"
+            >
+              {stepsRevealed === 0 ? "Show Step-by-Step Solver" : `Reveal Step ${stepsRevealed + 1}`}
+            </button>
+          )}
           
-          <button 
-            onClick={() => setShowAnswer(true)} 
-            className="text-xs bg-slate-850 hover:bg-slate-850/80 text-slate-300 px-3.5 py-2.5 rounded-xl border border-slate-800 transition"
-          >
-            Reveal Final Answer
-          </button>
+          {!isSubmitted && !showAnswer && (
+            <button 
+              onClick={() => {
+                setShowAnswer(true);
+                setStepsRevealed(activeQuestion.step_by_step_solution.length);
+              }} 
+              className="text-xs bg-slate-850 hover:bg-slate-850/80 text-slate-300 px-3.5 py-2.5 rounded-xl border border-slate-800 transition cursor-pointer"
+            >
+              Reveal Final Answer
+            </button>
+          )}
         </div>
 
         <div className="flex gap-2">
