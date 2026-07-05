@@ -135,13 +135,77 @@ class QuestionAgent:
                         {"step": "2", "instruction": "Subtract 10: 2x = 10"},
                         {"step": "3", "instruction": "Divide by 2: x = 5"}
                     ]
+                },
+                {
+                    "difficulty": "easy",
+                    "category": "board",
+                    "question_text": "Convert 5 kilometers (km) into meters (m).",
+                    "question_type": "mcq",
+                    "options": ["50 m", "500 m", "5000 m", "50000 m"],
+                    "correct_answer": "5000 m",
+                    "hints": ["Recall that 1 km = 1000 m.", "Multiply 5 by 1000."],
+                    "step_by_step_solution": [
+                        {"step": "1", "instruction": "Conversion formula: 1 km = 1000 m."},
+                        {"step": "2", "instruction": "Multiply: 5 * 1000 = 5000 m."}
+                    ]
+                },
+                {
+                    "difficulty": "medium",
+                    "category": "board",
+                    "question_text": "A line segment is 2 meters and 45 centimeters long. What is its length in centimeters (cm)?",
+                    "question_type": "mcq",
+                    "options": ["245 cm", "2045 cm", "2450 cm", "24.5 cm"],
+                    "correct_answer": "245 cm",
+                    "hints": ["1 meter = 100 cm.", "Convert 2 meters to cm and add 45 cm."],
+                    "step_by_step_solution": [
+                        {"step": "1", "instruction": "Convert meters: 2 m = 200 cm."},
+                        {"step": "2", "instruction": "Add centimeters: 200 cm + 45 cm = 245 cm."}
+                    ]
+                },
+                {
+                    "difficulty": "easy",
+                    "category": "competency",
+                    "question_text": "If a piece of rope is 8 meters long, how many 80 cm pieces can be cut from it?",
+                    "question_type": "mcq",
+                    "options": ["10", "80", "100", "5"],
+                    "correct_answer": "10",
+                    "hints": ["Convert 8 meters to cm: 1 m = 100 cm.", "Divide the total length in cm by 80 cm."],
+                    "step_by_step_solution": [
+                        {"step": "1", "instruction": "Convert rope length: 8 m = 800 cm."},
+                        {"step": "2", "instruction": "Divide by piece size: 800 cm / 80 cm = 10 pieces."}
+                    ]
+                },
+                {
+                    "difficulty": "medium",
+                    "category": "olympiad",
+                    "question_text": "Find the perimeter of a rectangle with length 12 cm and width 8 cm.",
+                    "question_type": "mcq",
+                    "options": ["40 cm", "96 cm", "20 cm", "48 cm"],
+                    "correct_answer": "40 cm",
+                    "hints": ["Perimeter formula: P = 2 * (length + width).", "Add 12 and 8, then multiply by 2."],
+                    "step_by_step_solution": [
+                        {"step": "1", "instruction": "Formula: P = 2 * (L + W)"},
+                        {"step": "2", "instruction": "Sum dimensions: 12 + 8 = 20 cm"},
+                        {"step": "3", "instruction": "Multiply by 2: 2 * 20 = 40 cm"}
+                    ]
+                },
+                {
+                    "difficulty": "hard",
+                    "category": "hots",
+                    "question_text": "Solve the equation: 3x - 7 = 14.",
+                    "question_type": "mcq",
+                    "options": ["x = 7", "x = 6", "x = 21", "x = 3"],
+                    "correct_answer": "x = 7",
+                    "hints": ["Add 7 to both sides.", "Divide by 3."],
+                    "step_by_step_solution": [
+                        {"step": "1", "instruction": "Given: 3x - 7 = 14"},
+                        {"step": "2", "instruction": "Add 7: 3x = 21"},
+                        {"step": "3", "instruction": "Divide by 3: x = 7"}
+                    ]
                 }
             ]
             
-        # Shuffle/sample up to the count requested
-        selected = []
-        for _ in range(count):
-            item = random.choice(pool)
-            selected.append(item.copy())
-            
+        # Shuffle/sample unique questions from the pool
+        count = min(count, len(pool))
+        selected = [item.copy() for item in random.sample(pool, count)]
         return selected

@@ -62,8 +62,73 @@ export default function PracticeEngine({ questions, onAnswerSubmit }: PracticeEn
   // Step solver states
   const [stepsRevealed, setStepsRevealed] = useState<number>(0); // how many steps shown
   const [showAnswer, setShowAnswer] = useState(false);
+  
+  // Quiz completion and score tracking
+  const [quizCompleted, setQuizCompleted] = useState(false);
+  const [score, setScore] = useState(0);
+
+  // Reset quiz state when active questions array changes
+  React.useEffect(() => {
+    setCurrentIdx(0);
+    setSelectedOption(null);
+    setIsSubmitted(false);
+    setIsCorrect(false);
+    setHintsRevealed(0);
+    setStepsRevealed(0);
+    setShowAnswer(false);
+    setQuizCompleted(false);
+    setScore(0);
+  }, [questions]);
 
   const activeQuestion = questions[currentIdx];
+
+  if (quizCompleted) {
+    return (
+      <div className="bg-slate-900/60 backdrop-blur-md p-8 rounded-3xl border border-slate-800 flex flex-col items-center justify-center text-center gap-6 animate-fade-in max-w-md mx-auto">
+        <div className="w-16 h-16 rounded-full bg-teal-500/10 border border-teal-500/30 flex items-center justify-center text-teal-400">
+          <Sparkles className="w-8 h-8" />
+        </div>
+        
+        <div>
+          <h3 className="text-xl font-bold text-white uppercase tracking-wider">Practice Completed!</h3>
+          <p className="text-sm text-slate-400 mt-2 leading-relaxed">
+            Congratulations! You have completed all K-12 measurement exercises for this concept.
+          </p>
+        </div>
+        
+        <div className="w-full bg-slate-950/60 border border-slate-850 p-4 rounded-2xl flex justify-around">
+          <div>
+            <p className="text-[10px] text-slate-500 font-bold uppercase">Accuracy</p>
+            <p className="text-xl font-bold text-teal-400 mt-1">{questions.length > 0 ? Math.round((score / questions.length) * 100) : 0}%</p>
+          </div>
+          <div className="border-r border-slate-800"></div>
+          <div>
+            <p className="text-[10px] text-slate-500 font-bold uppercase">Score</p>
+            <p className="text-xl font-bold text-white mt-1">{score} / {questions.length}</p>
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-2 w-full">
+          <button
+            onClick={() => {
+              setQuizCompleted(false);
+              setCurrentIdx(0);
+              setSelectedOption(null);
+              setIsSubmitted(false);
+              setIsCorrect(false);
+              setHintsRevealed(0);
+              setStepsRevealed(0);
+              setShowAnswer(false);
+              setScore(0);
+            }}
+            className="w-full bg-slate-850 hover:bg-slate-800 text-white font-bold py-3 px-4 rounded-xl border border-slate-700 transition text-xs cursor-pointer"
+          >
+            Retake Practice Set
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (!activeQuestion) {
     return (
@@ -90,6 +155,7 @@ export default function PracticeEngine({ questions, onAnswerSubmit }: PracticeEn
     setShowAnswer(true);
     
     if (correct) {
+      setScore(prev => prev + 1);
       confetti({
         particleCount: 80,
         spread: 60,
@@ -104,13 +170,17 @@ export default function PracticeEngine({ questions, onAnswerSubmit }: PracticeEn
   };
 
   const nextQuestion = () => {
+    if (currentIdx === questions.length - 1) {
+      setQuizCompleted(true);
+      return;
+    }
     setSelectedOption(null);
     setIsSubmitted(false);
     setIsCorrect(false);
     setHintsRevealed(0);
     setStepsRevealed(0);
     setShowAnswer(false);
-    setCurrentIdx((prev) => (prev + 1) % questions.length);
+    setCurrentIdx((prev) => prev + 1);
   };
 
   const revealHint = () => {
