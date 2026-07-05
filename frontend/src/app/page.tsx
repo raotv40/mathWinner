@@ -46,8 +46,28 @@ export default function Home() {
   const [uploadProgress, setUploadProgress] = useState<string | null>(null);
   
   // Form Upload state
-  const [uploadNum, setUploadNum] = useState(1);
-  const [uploadTitle, setUploadTitle] = useState('');
+  const [uploadNum, setUploadNum] = useState<number>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('mathwinner_upload_num');
+      return saved ? parseInt(saved, 10) : 1;
+    }
+    return 1;
+  });
+  const [uploadTitle, setUploadTitle] = useState<string>(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('mathwinner_upload_title') || '';
+    }
+    return '';
+  });
+
+  // Sync upload form inputs to localStorage
+  useEffect(() => {
+    localStorage.setItem('mathwinner_upload_title', uploadTitle);
+  }, [uploadTitle]);
+
+  useEffect(() => {
+    localStorage.setItem('mathwinner_upload_num', uploadNum.toString());
+  }, [uploadNum]);
 
   // Selected video source blob URL / fallbacks
   const [videoSrc, setVideoSrc] = useState<string>('#');
@@ -265,6 +285,8 @@ export default function Home() {
       
       setTimeout(async () => {
         setUploadProgress(null);
+        setUploadTitle('');
+        setUploadNum(prev => prev + 1);
         await loadChaptersList();
       }, 5000);
     } catch (err) {
