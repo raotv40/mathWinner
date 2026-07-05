@@ -43,8 +43,59 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Serves processed uploads (PDF & Video files)
-app.mount("/uploads", StaticFiles(directory=settings.UPLOAD_DIR), name="uploads")
+from fastapi.responses import FileResponse, StreamingResponse
+from fastapi import Header, HTTPException
+from typing import Optional
+
+# Serves processed uploads (PDF & Video files) with HTTP Range support for Safari / Chrome streaming
+@app.get("/uploads/{filename}")
+async def get_uploaded_file(filename: str, range: Optional[str] = Header(None)):
+    file_path = os.path.join(settings.UPLOAD_DIR, filename)
+    if not os.path.exists(file_path):
+        raise HTTPException(status_code=404, detail="File not found")
+        
+    # Serve PDFs or non-mp4 files normally
+    if not filename.lower().endswith(".mp4"):
+        return FileResponse(file_path)
+        
+    # Serve MP4 videos with HTTP Range support
+    file_size = os.path.getsize(file_path)
+    if range:
+        try:
+            range_str = range.replace("bytes=", "")
+            range_parts = range_str.split("-")
+            start = int(range_parts[0]) if range_parts[0] else 0
+            end = int(range_parts[1]) if len(range_parts) > 1 and range_parts[1] else file_size - 1
+            
+            if start >= file_size or end >= file_size:
+                raise HTTPException(status_code=416, detail="Requested range not satisfiable")
+                
+            chunk_size = end - start + 1
+            
+            def file_iterator():
+                with open(file_path, "rb") as f:
+                    f.seek(start)
+                    remaining = chunk_size
+                    while remaining > 0:
+                        to_read = min(remaining, 1024 * 64)
+                        data = f.read(to_read)
+                        if not data:
+                            break
+                        remaining -= len(data)
+                        yield data
+                        
+            headers = {
+                "Content-Range": f"bytes {start}-{end}/{file_size}",
+                "Accept-Ranges": "bytes",
+                "Content-Length": str(chunk_size),
+                "Content-Type": "video/mp4",
+            }
+            return StreamingResponse(file_iterator(), status_code=206, headers=headers)
+        except Exception:
+            # Fallback to standard FileResponse if range parsing fails
+            pass
+            
+    return FileResponse(file_path, media_type="video/mp4")
 
 # Include Routers
 app.include_router(auth.router, prefix=settings.API_V1_STR)
