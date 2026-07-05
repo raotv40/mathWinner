@@ -8,12 +8,12 @@ from app.routers import auth, chapters, practice, tutor, whiteboard, analytics, 
 from app.db.models import Base
 from app.db.session import engine
 
+# Ensure local upload directories exist immediately at module load time
+os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
+os.makedirs(settings.OFFLINE_PACKAGES_DIR, exist_ok=True)
+
 # FastAPI App Lifespan
 async def lifespan(app: FastAPI):
-    # Ensure local upload directories exist
-    os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
-    os.makedirs(settings.OFFLINE_PACKAGES_DIR, exist_ok=True)
-    
     # In development, try to auto-create base database tables if pgvector/db connection is active
     try:
         async with engine.begin() as conn:
