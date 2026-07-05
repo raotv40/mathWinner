@@ -603,8 +603,8 @@ export default function Home() {
             <div className="lg:col-span-7 space-y-6">
               <VideoPlayer
                 chapterId={selectedChapterId!}
-                videoUrl={resolveUploadUrl(chapterDetails.chapter?.video_url) || '#'}
-                formulas={chapterDetails.chapter?.formulas || []}
+                videoUrl={resolveUploadUrl(chapterDetails.video_url) || '#'}
+                formulas={chapterDetails.formulas || []}
                 onAskAI={(contextText, concept) => {
                   setTutorQuery(contextText);
                   setTutorConcept(concept);

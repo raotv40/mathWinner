@@ -58,11 +58,12 @@ export default function VideoPlayer({ chapterId, videoUrl, formulas, onAskAI }: 
       }
 
       if (!hasLocal) {
-        if (videoUrl.includes('mock_chapter') || videoUrl === '#' || !videoUrl) {
+        const urlStr = videoUrl || '';
+        if (urlStr.includes('mock_chapter') || urlStr === '#' || !urlStr) {
           // Reliable public educational placeholder video stream
           setVideoSrc("https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4");
         } else {
-          setVideoSrc(videoUrl);
+          setVideoSrc(urlStr);
         }
       }
     }
