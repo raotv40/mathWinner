@@ -828,24 +828,58 @@ export default function Home() {
                     </div>
                   </div>
 
-                  {/* 2. Ready to Test Box (New Box Underneath) */}
-                  <div className="bg-slate-900/40 p-6 rounded-3xl border border-slate-800/80 flex flex-col gap-4 shadow-xl">
-                    <div className="space-y-1">
-                      <h4 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
-                        <Brain className="w-4 h-4 text-teal-400" /> Ready to Test?
-                      </h4>
-                      <p className="text-[10px] text-slate-500 font-semibold leading-relaxed">
-                        Complete your hands-on toolkit experiments and video theory before starting the exam.
+                  {/* 2. Ready to Test / Processing / Error Box Stack */}
+                  {chapterDetails.summary && chapterDetails.summary.startsWith("Processing failed:") ? (
+                    <div className="bg-slate-900/40 p-6 rounded-3xl border border-slate-800/80 flex flex-col gap-3.5 shadow-xl text-left">
+                      <div className="space-y-1">
+                        <h4 className="text-xs font-bold text-rose-400 uppercase tracking-wider flex items-center gap-1.5">
+                          <AlertTriangle className="w-4.5 h-4.5 shrink-0 text-rose-400" /> AI Analysis Failed
+                        </h4>
+                        <p className="text-[10px] text-slate-400 leading-relaxed">
+                          The background task crashed on the server:
+                        </p>
+                      </div>
+                      <div className="bg-slate-950 border border-slate-850 p-3 rounded-xl font-mono text-[10px] text-rose-300 break-words leading-relaxed select-text max-h-[120px] overflow-y-auto">
+                        {chapterDetails.summary.substring(18)}
+                      </div>
+                      <p className="text-[9px] text-slate-500 leading-normal">
+                        Please delete this chapter and upload a fresh video file (under 25MB).
                       </p>
                     </div>
-                    
-                    <button
-                      onClick={() => setMcqUnlocked(true)}
-                      className="w-full bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 text-slate-950 font-black text-xs uppercase tracking-widest py-3.5 px-6 rounded-2xl shadow-lg shadow-teal-500/10 hover:shadow-teal-500/20 hover:scale-[1.01] transition duration-200 cursor-pointer flex items-center justify-center gap-1.5"
-                    >
-                      I am ready with the concept, start MCQ Test →
-                    </button>
-                  </div>
+                  ) : chapterDetails.summary && chapterDetails.summary.startsWith("Processing") ? (
+                    <div className="bg-slate-900/40 p-6 rounded-3xl border border-slate-800/80 flex flex-col gap-4 shadow-xl text-left">
+                      <div className="space-y-1">
+                        <h4 className="text-xs font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
+                          <RefreshCw className="w-4 h-4 animate-spin text-amber-400" /> AI Processing Active
+                        </h4>
+                        <p className="text-[10px] text-slate-400 leading-relaxed">
+                          We are transcribing your video lesson and generating the CBSE SAFAL exam questions. This takes about 30–45 seconds.
+                        </p>
+                      </div>
+                      <div className="w-full bg-slate-950/60 border border-slate-850 p-4.5 rounded-2xl flex flex-col items-center justify-center text-center">
+                        <div className="w-8 h-8 rounded-full border-2 border-teal-500 border-t-transparent animate-spin mb-2"></div>
+                        <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider animate-pulse">Running Whisper & GPT...</p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="bg-slate-900/40 p-6 rounded-3xl border border-slate-800/80 flex flex-col gap-4 shadow-xl">
+                      <div className="space-y-1 text-left">
+                        <h4 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
+                          <Brain className="w-4 h-4 text-teal-400" /> Ready to Test?
+                        </h4>
+                        <p className="text-[10px] text-slate-500 font-semibold leading-relaxed">
+                          Complete your hands-on toolkit experiments and video theory before starting the exam.
+                        </p>
+                      </div>
+                      
+                      <button
+                        onClick={() => setMcqUnlocked(true)}
+                        className="w-full bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 text-slate-950 font-black text-xs uppercase tracking-widest py-3.5 px-6 rounded-2xl shadow-lg shadow-teal-500/10 hover:shadow-teal-500/20 hover:scale-[1.01] transition duration-200 cursor-pointer flex items-center justify-center gap-1.5"
+                      >
+                        I am ready with the concept, start MCQ Test →
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             ) : (
