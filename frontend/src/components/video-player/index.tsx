@@ -236,142 +236,98 @@ export default function VideoPlayer({ chapterId, videoUrl, formulas, transcript,
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 bg-slate-900/40 backdrop-blur-md p-6 rounded-3xl border border-slate-800">
-      
-      {/* Left: Video Player */}
-      <div className="lg:col-span-2 flex flex-col gap-4">
-        <div className="relative aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl border border-slate-800 group">
-          <video
-            key={videoSrc}
-            ref={videoRef}
-            src={videoSrc}
-            controls
-            className="w-full h-full object-cover"
-            onTimeUpdate={handleTimeUpdate}
-            onLoadedMetadata={handleLoadedMetadata}
-            onClick={togglePlay}
-            onError={handleVideoError}
-          />
+    <div className="flex flex-col gap-4 bg-slate-900/40 backdrop-blur-md p-6 rounded-3xl border border-slate-800">
+      <div className="relative aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl border border-slate-800 group">
+        <video
+          key={videoSrc}
+          ref={videoRef}
+          src={videoSrc}
+          controls
+          className="w-full h-full object-cover"
+          onTimeUpdate={handleTimeUpdate}
+          onLoadedMetadata={handleLoadedMetadata}
+          onClick={togglePlay}
+          onError={handleVideoError}
+        />
 
-          {/* Formula Overlay */}
-          {activeFormula && (
-            <div className="absolute top-4 left-4 bg-slate-900/80 backdrop-blur-md px-4 py-2 rounded-xl border border-teal-500/30 flex items-center gap-2 max-w-[80%] animate-pulse z-20">
-              <Brain className="w-5 h-5 text-teal-400 shrink-0" />
-              <div>
-                <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Concept Formula</p>
-                <p className="text-sm font-mono text-teal-200">{formatFormulaText(activeFormula.formula)}</p>
-              </div>
+        {/* Formula Overlay */}
+        {activeFormula && (
+          <div className="absolute top-4 left-4 bg-slate-900/80 backdrop-blur-md px-4 py-2 rounded-xl border border-teal-500/30 flex items-center gap-2 max-w-[80%] animate-pulse z-20">
+            <Brain className="w-5 h-5 text-teal-400 shrink-0" />
+            <div>
+              <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Concept Formula</p>
+              <p className="text-sm font-mono text-teal-200">{formatFormulaText(activeFormula.formula)}</p>
             </div>
-          )}
-
-          {/* Big center play icon on hover when paused */}
-          {!isPlaying && (
-            <div 
-              className="absolute inset-0 flex items-center justify-center bg-black/30 cursor-pointer z-20"
-              onClick={togglePlay}
-            >
-              <div className="w-16 h-16 rounded-full bg-teal-500/95 flex items-center justify-center shadow-lg shadow-teal-500/35 transition hover:scale-110">
-                <Play className="w-8 h-8 text-slate-950 fill-slate-950 translate-x-0.5" />
-              </div>
-            </div>
-          )}
-
-          {/* Custom Controls Bar */}
-          <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-slate-950/95 via-slate-950/60 to-transparent p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col gap-3 z-20">
-            {/* Timeline slider */}
-            <input
-              type="range"
-              min={0}
-              max={duration || 100}
-              value={currentTime}
-              onChange={handleSeek}
-              className="w-full accent-teal-400 cursor-pointer h-1 rounded-lg"
-            />
-
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <button onClick={togglePlay} className="text-white hover:text-teal-400 transition">
-                  {isPlaying ? <Pause className="w-6 h-6 fill-white" /> : <Play className="w-6 h-6 fill-white" />}
-                </button>
-                <span className="text-xs text-slate-300 font-mono">
-                  {formatTime(currentTime)} / {formatTime(duration)}
-                </span>
-                <span className="text-xs px-2 py-0.5 rounded-full bg-teal-500/20 text-teal-300 font-semibold border border-teal-500/20 uppercase">
-                  {activeConcept}
-                </span>
-              </div>
-
-              <div className="flex items-center gap-4">
-                <button onClick={changeSpeed} className="text-xs font-mono font-bold text-white hover:text-teal-400 bg-slate-800 px-2 py-1 rounded transition border border-slate-700">
-                  {playbackRate}x
-                </button>
-                <button onClick={addBookmark} title="Add Bookmark" className="text-white hover:text-teal-400 transition">
-                  <Bookmark className="w-5 h-5" />
-                </button>
-                <button onClick={triggerAskAI} className="flex items-center gap-1 text-xs bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold px-3 py-1.5 rounded-lg shadow-lg shadow-teal-500/25 transition">
-                  <Brain className="w-4 h-4" /> Pause & Ask AI
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Bookmarks Timeline */}
-        {bookmarks.length > 0 && (
-          <div className="flex items-center gap-2 overflow-x-auto py-1">
-            <span className="text-xs text-slate-400 font-bold flex items-center gap-1"><Bookmark className="w-4.5 h-4.5 text-teal-400" /> Bookmarks:</span>
-            {bookmarks.map((time, idx) => (
-              <button
-                key={idx}
-                onClick={() => skipToTime(time)}
-                className="text-xs bg-slate-800 hover:bg-slate-700 text-teal-300 px-2.5 py-1 rounded-md border border-slate-700 flex items-center gap-1 transition"
-              >
-                {formatTime(time)}
-              </button>
-            ))}
           </div>
         )}
-      </div>
 
-      {/* Right: Sync Clickable Transcript */}
-      <div className="flex flex-col gap-3 h-[280px] lg:h-auto">
-        <h3 className="text-sm font-bold text-slate-200 tracking-wide uppercase flex items-center gap-2">
-          <ChevronRight className="w-4 h-4 text-teal-400" /> Clickable Transcript
-        </h3>
-        
-        <div 
-          ref={transcriptContainerRef}
-          className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-800 scrollbar-track-transparent rounded-2xl bg-slate-900/50 p-4 border border-slate-800 space-y-3"
-        >
-          {transcripts.map((seg) => {
-            const isActive = currentTime >= seg.start_time && currentTime <= seg.end_time;
-            return (
-              <div
-                key={seg.start_time}
-                id={`seg-${seg.start_time}`}
-                onClick={() => skipToTime(seg.start_time)}
-                className={`p-3 rounded-xl cursor-pointer border transition duration-200 ${
-                  isActive 
-                    ? 'bg-teal-500/10 border-teal-500/40 shadow-inner shadow-teal-500/5' 
-                    : 'bg-slate-900/30 border-slate-800/60 hover:bg-slate-800/40 hover:border-slate-700'
-                }`}
-              >
-                <div className="flex items-center justify-between mb-1">
-                  <span className={`text-[10px] font-bold uppercase tracking-wider ${isActive ? 'text-teal-400' : 'text-slate-400'}`}>
-                    {seg.concept_title}
-                  </span>
-                  <span className="text-[10px] font-mono text-slate-400 bg-slate-800/80 px-1.5 py-0.5 rounded">
-                    {formatTime(seg.start_time)}
-                  </span>
-                </div>
-                <p className={`text-xs leading-relaxed ${isActive ? 'text-white font-medium' : 'text-slate-300'}`}>
-                  {seg.text}
-                </p>
-              </div>
-            );
-          })}
+        {/* Big center play icon on hover when paused */}
+        {!isPlaying && (
+          <div 
+            className="absolute inset-0 flex items-center justify-center bg-black/30 cursor-pointer z-20"
+            onClick={togglePlay}
+          >
+            <div className="w-16 h-16 rounded-full bg-teal-500/95 flex items-center justify-center shadow-lg shadow-teal-500/35 transition hover:scale-110">
+              <Play className="w-8 h-8 text-slate-950 fill-slate-950 translate-x-0.5" />
+            </div>
+          </div>
+        )}
+
+        {/* Custom Controls Bar */}
+        <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-slate-950/95 via-slate-950/60 to-transparent p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col gap-3 z-20">
+          {/* Timeline slider */}
+          <input
+            type="range"
+            min={0}
+            max={duration || 100}
+            value={currentTime}
+            onChange={handleSeek}
+            className="w-full accent-teal-400 cursor-pointer h-1 rounded-lg"
+          />
+
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <button onClick={togglePlay} className="text-white hover:text-teal-400 transition">
+                {isPlaying ? <Pause className="w-6 h-6 fill-white" /> : <Play className="w-6 h-6 fill-white" />}
+              </button>
+              <span className="text-xs text-slate-300 font-mono">
+                {formatTime(currentTime)} / {formatTime(duration)}
+              </span>
+              <span className="text-xs px-2 py-0.5 rounded-full bg-teal-500/20 text-teal-300 font-semibold border border-teal-500/20 uppercase">
+                {activeConcept}
+              </span>
+            </div>
+
+            <div className="flex items-center gap-4">
+              <button onClick={changeSpeed} className="text-xs font-mono font-bold text-white hover:text-teal-400 bg-slate-800 px-2 py-1 rounded transition border border-slate-700">
+                {playbackRate}x
+              </button>
+              <button onClick={addBookmark} title="Add Bookmark" className="text-white hover:text-teal-400 transition">
+                <Bookmark className="w-5 h-5" />
+              </button>
+              <button onClick={triggerAskAI} className="flex items-center gap-1 text-xs bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold px-3 py-1.5 rounded-lg shadow-lg shadow-teal-500/25 transition">
+                <Brain className="w-4 h-4" /> Pause & Ask AI
+              </button>
+            </div>
+          </div>
         </div>
       </div>
+
+      {/* Bookmarks Timeline */}
+      {bookmarks.length > 0 && (
+        <div className="flex items-center gap-2 overflow-x-auto py-1">
+          <span className="text-xs text-slate-400 font-bold flex items-center gap-1"><Bookmark className="w-4.5 h-4.5 text-teal-400" /> Bookmarks:</span>
+          {bookmarks.map((time, idx) => (
+            <button
+              key={idx}
+              onClick={() => skipToTime(time)}
+              className="text-xs bg-slate-800 hover:bg-slate-700 text-teal-300 px-2.5 py-1 rounded-md border border-slate-700 flex items-center gap-1 transition"
+            >
+              {formatTime(time)}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
