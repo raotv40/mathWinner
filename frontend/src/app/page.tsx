@@ -831,34 +831,49 @@ export default function Home() {
                   />
                 </div>
 
-                {/* Right side: MathWinner Tool Kit Card */}
-                <div className="lg:col-span-4 bg-slate-900/40 p-6 rounded-3xl border border-slate-800 flex flex-col gap-4">
-                  <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
-                    <GraduationCap className="w-5 h-5 text-teal-400" /> MathWinner Tool Kit
-                  </h3>
-                  
-                  <div className="relative aspect-video w-full rounded-2xl overflow-hidden border border-slate-800 bg-slate-950">
-                    <img 
-                      src="/mathwinner_toolkit_class5.png" 
-                      alt="MathWinner Toolkit Mockup" 
-                      className="w-full h-full object-cover"
-                    />
+                {/* Right side: MathWinner Tool Kit Stack */}
+                <div className="lg:col-span-4 flex flex-col gap-6">
+                  {/* 1. MathWinner Tool Kit Card */}
+                  <div className="bg-slate-900/40 p-6 rounded-3xl border border-slate-800 flex flex-col gap-4">
+                    <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                      <GraduationCap className="w-5 h-5 text-teal-400" /> MathWinner Tool Kit
+                    </h3>
+                    
+                    <div className="relative aspect-video w-full rounded-2xl overflow-hidden border border-slate-800 bg-slate-950">
+                      <img 
+                        src="/mathwinner_toolkit_class5.png" 
+                        alt="MathWinner Toolkit Mockup" 
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+
+                    <div>
+                      <h4 className="text-xs font-bold text-slate-200 uppercase tracking-wide">Class {selectedClass} physical kit</h4>
+                      <p className="text-xs text-slate-400 mt-2 leading-relaxed">
+                        This physical math toolkit contains measuring tapes, conversion cards, and scale instruments. 
+                        Follow along with the video instructions on the left to learn the concepts!
+                      </p>
+                    </div>
                   </div>
 
-                  <div>
-                    <h4 className="text-xs font-bold text-slate-200 uppercase tracking-wide">Class {selectedClass} physical kit</h4>
-                    <p className="text-xs text-slate-400 mt-2 leading-relaxed">
-                      This physical math toolkit contains measuring tapes, conversion cards, and scale instruments. 
-                      Follow along with the video instructions on the left to learn the concepts!
-                    </p>
+                  {/* 2. Ready to Test Box (New Box Underneath) */}
+                  <div className="bg-slate-900/40 p-6 rounded-3xl border border-slate-800/80 flex flex-col gap-4 shadow-xl">
+                    <div className="space-y-1">
+                      <h4 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
+                        <Brain className="w-4 h-4 text-teal-400" /> Ready to Test?
+                      </h4>
+                      <p className="text-[10px] text-slate-500 font-semibold leading-relaxed">
+                        Complete your hands-on toolkit experiments and video theory before starting the exam.
+                      </p>
+                    </div>
+                    
+                    <button
+                      onClick={() => setMcqUnlocked(true)}
+                      className="w-full bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 text-slate-950 font-black text-xs uppercase tracking-widest py-3.5 px-6 rounded-2xl shadow-lg shadow-teal-500/10 hover:shadow-teal-500/20 hover:scale-[1.01] transition duration-200 cursor-pointer flex items-center justify-center gap-1.5"
+                    >
+                      I am ready with the concept, start MCQ Test →
+                    </button>
                   </div>
-
-                  <button
-                    onClick={() => setMcqUnlocked(true)}
-                    className="w-full bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold py-3 px-4 rounded-xl shadow-lg shadow-teal-500/25 transition text-xs flex items-center justify-center gap-2 mt-2 cursor-pointer"
-                  >
-                    I am ready with the concept, start MCQ Test →
-                  </button>
                 </div>
               </div>
             ) : (
