@@ -31,8 +31,168 @@ class VideoAgent:
 
     @staticmethod
     async def _process_with_whisper(video_path: str, chapter_concepts: List[Dict[str, Any]]) -> Dict[str, Any]:
-        # Whisper mock output for structure
-        return await VideoAgent._process_with_simulation(video_path, chapter_concepts)
+        import subprocess
+        import tempfile
+        import json
+        from openai import AsyncOpenAI
+        
+        # Generate temporary audio file path
+        temp_dir = tempfile.gettempdir()
+        audio_filename = f"audio_{os.path.basename(video_path)}.wav"
+        audio_path = os.path.join(temp_dir, audio_filename)
+        
+        # Run FFmpeg command to extract audio (mono, 16kHz WAV format)
+        cmd = [
+            "ffmpeg", "-y", "-i", video_path,
+            "-vn", "-ar", "16000", "-ac", "1", "-c:a", "pcm_s16le",
+            audio_path
+        ]
+        
+        try:
+            print(f"Extracting audio from video: {video_path}")
+            # Use subprocess to run FFmpeg and capture output
+            process = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+            print(f"Audio extracted successfully to {audio_path}")
+        except subprocess.CalledProcessError as e:
+            print(f"FFmpeg audio extraction failed: {e.stderr.decode('utf-8', errors='ignore')}")
+            # Fallback to simulation if ffmpeg fails
+            return await VideoAgent._process_with_simulation(video_path, chapter_concepts)
+            
+        try:
+            client = AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
+            
+            # Send the audio file to Whisper for real speech-to-text
+            print("Sending audio to OpenAI Whisper API...")
+            with open(audio_path, "rb") as audio_file:
+                whisper_response = await client.audio.transcriptions.create(
+                    file=audio_file,
+                    model="whisper-1",
+                    response_format="verbose_json"
+                )
+            
+            # Remove temporary audio file
+            if os.path.exists(audio_path):
+                os.remove(audio_path)
+                
+            segments_data = getattr(whisper_response, "segments", [])
+            whisper_segments = []
+            for seg in segments_data:
+                seg_dict = seg if isinstance(seg, dict) else getattr(seg, "__dict__", {})
+                start = seg_dict.get("start", 0.0)
+                end = seg_dict.get("end", 0.0)
+                text = seg_dict.get("text", "").strip()
+                if text:
+                    whisper_segments.append({
+                        "start_time": start,
+                        "end_time": end,
+                        "text": text
+                    })
+                    
+            if not whisper_segments:
+                print("No transcription segments returned from Whisper.")
+                return await VideoAgent._process_with_simulation(video_path, chapter_concepts)
+                
+            print(f"Whisper transcribed {len(whisper_segments)} segments.")
+            
+            # Call GPT-4o-mini in one batch to align segments to the textbook concepts
+            concept_titles = [c["title"] for c in chapter_concepts]
+            concept_details = "\n".join([f"- {c['title']}: {c['description']}" for c in chapter_concepts])
+            transcript_block = "\n".join([f"[{idx}] {seg['text']}" for idx, seg in enumerate(whisper_segments)])
+            
+            prompt = f"""
+You are an expert curriculum assistant. You are given a list of textbook concepts and a list of video transcription segments.
+Map each transcription segment index to the most relevant textbook concept title.
+
+List of Concepts:
+{concept_details}
+
+Transcription Segments:
+{transcript_block}
+
+Respond ONLY with a JSON array of strings, where each element corresponds to the concept title for that segment index.
+For example, if you have 3 segments:
+["Concept Title 1", "Concept Title 1", "Concept Title 2"]
+Do not return any other text, markdown blocks, or formatting. Respond only with the raw JSON array.
+"""
+            concept_mapping_array = []
+            try:
+                gpt_response = await client.chat.completions.create(
+                    model="gpt-4o-mini",
+                    messages=[{"role": "user", "content": prompt}],
+                    temperature=0.0
+                )
+                content = gpt_response.choices[0].message.content.strip()
+                if content.startswith("```json"):
+                    content = content[7:]
+                if content.endswith("```"):
+                    content = content[:-3]
+                content = content.strip()
+                concept_mapping_array = json.loads(content)
+            except Exception as e:
+                print(f"GPT-4o-mini concept mapping failed: {e}")
+                
+            if len(concept_mapping_array) != len(whisper_segments):
+                # Fallback to sequential mapping
+                num_concepts = len(chapter_concepts)
+                concept_mapping_array = []
+                for idx in range(len(whisper_segments)):
+                    concept_idx = min(idx * num_concepts // len(whisper_segments), num_concepts - 1)
+                    concept_mapping_array.append(chapter_concepts[concept_idx]["title"])
+                    
+            # Generate real embeddings for all segments in a single batch
+            embeddings = []
+            try:
+                print("Generating embeddings for transcript segments...")
+                texts = [seg["text"] for seg in whisper_segments]
+                emb_response = await client.embeddings.create(
+                    model="text-embedding-3-small",
+                    input=texts
+                )
+                embeddings = [e.embedding for e in emb_response.data]
+            except Exception as e:
+                print(f"Embedding generation failed: {e}")
+                for _ in range(len(whisper_segments)):
+                    mock_emb = np.random.normal(0.0, 0.1, 1536).tolist()
+                    norm = np.linalg.norm(mock_emb)
+                    embeddings.append((np.array(mock_emb) / norm).tolist())
+                    
+            segments = []
+            for idx, seg in enumerate(whisper_segments):
+                concept_title = concept_mapping_array[idx] if idx < len(concept_mapping_array) else chapter_concepts[0]["title"]
+                segments.append({
+                    "concept_title": concept_title,
+                    "start_time": seg["start_time"],
+                    "end_time": seg["end_time"],
+                    "text": seg["text"],
+                    "embedding": embeddings[idx]
+                })
+                
+            # Create WebVTT subtitles
+            subtitles_vtt = "WEBVTT\n\n"
+            for idx, seg in enumerate(segments):
+                start_min = int(seg["start_time"] // 60)
+                start_sec = int(seg["start_time"] % 60)
+                start_ms = int((seg["start_time"] % 1) * 1000)
+                
+                end_min = int(seg["end_time"] // 60)
+                end_sec = int(seg["end_time"] % 60)
+                end_ms = int((seg["end_time"] % 1) * 1000)
+                
+                subtitles_vtt += f"{idx + 1}\n"
+                subtitles_vtt += f"00:{start_min:02d}:{start_sec:02d}.{start_ms:03d} --> 00:{end_min:02d}:{end_sec:02d}.{end_ms:03d}\n"
+                subtitles_vtt += f"[{seg['concept_title']}] {seg['text']}\n\n"
+                
+            return {
+                "segments": segments,
+                "subtitles_vtt": subtitles_vtt,
+                "total_duration": segments[-1]["end_time"] if segments else 0.0
+            }
+            
+        except Exception as e:
+            print(f"Whisper/Whisper workflow failed: {e}")
+            if os.path.exists(audio_path):
+                os.remove(audio_path)
+            return await VideoAgent._process_with_simulation(video_path, chapter_concepts)
 
     @staticmethod
     async def _process_with_simulation(video_path: str, chapter_concepts: List[Dict[str, Any]]) -> Dict[str, Any]:
