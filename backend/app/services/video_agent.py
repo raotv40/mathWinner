@@ -31,48 +31,32 @@ class VideoAgent:
 
     @staticmethod
     async def _process_with_whisper(video_path: str, chapter_concepts: List[Dict[str, Any]]) -> Dict[str, Any]:
-        import subprocess
-        import tempfile
         import json
         from openai import AsyncOpenAI
         
-        # Generate temporary audio file path
-        temp_dir = tempfile.gettempdir()
-        audio_filename = f"audio_{os.path.basename(video_path)}.wav"
-        audio_path = os.path.join(temp_dir, audio_filename)
-        
-        # Run FFmpeg command to extract audio (mono, 16kHz WAV format)
-        cmd = [
-            "ffmpeg", "-y", "-i", video_path,
-            "-vn", "-ar", "16000", "-ac", "1", "-c:a", "pcm_s16le",
-            audio_path
-        ]
-        
+        # Check video file size first (OpenAI Whisper has a 25MB file upload limit)
         try:
-            print(f"Extracting audio from video: {video_path}")
-            # Use subprocess to run FFmpeg and capture output
-            process = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
-            print(f"Audio extracted successfully to {audio_path}")
-        except subprocess.CalledProcessError as e:
-            print(f"FFmpeg audio extraction failed: {e.stderr.decode('utf-8', errors='ignore')}")
-            # Fallback to simulation if ffmpeg fails
-            return await VideoAgent._process_with_simulation(video_path, chapter_concepts)
+            file_size_bytes = os.path.getsize(video_path)
+            file_size_mb = file_size_bytes / (1024 * 1024)
+            print(f"Uploaded video size: {file_size_mb:.2f} MB")
+            
+            if file_size_bytes > 25 * 1024 * 1024:
+                print("Video file exceeds 25MB OpenAI limit. Falling back to simulation to prevent API errors.")
+                return await VideoAgent._process_with_simulation(video_path, chapter_concepts)
+        except Exception as size_err:
+            print(f"Error checking video size: {size_err}")
             
         try:
             client = AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
             
-            # Send the audio file to Whisper for real speech-to-text
-            print("Sending audio to OpenAI Whisper API...")
-            with open(audio_path, "rb") as audio_file:
+            # Send the video file directly to Whisper (Whisper accepts mp4/webm/mpeg directly!)
+            print("Sending video directly to OpenAI Whisper API...")
+            with open(video_path, "rb") as video_file:
                 whisper_response = await client.audio.transcriptions.create(
-                    file=audio_file,
+                    file=video_file,
                     model="whisper-1",
                     response_format="verbose_json"
                 )
-            
-            # Remove temporary audio file
-            if os.path.exists(audio_path):
-                os.remove(audio_path)
                 
             segments_data = getattr(whisper_response, "segments", [])
             whisper_segments = []
@@ -190,8 +174,6 @@ Do not return any other text, markdown blocks, or formatting. Respond only with 
             
         except Exception as e:
             print(f"Whisper/Whisper workflow failed: {e}")
-            if os.path.exists(audio_path):
-                os.remove(audio_path)
             return await VideoAgent._process_with_simulation(video_path, chapter_concepts)
 
     @staticmethod
