@@ -631,7 +631,14 @@ export default function Home() {
             </div>
 
             {/* Modal Footer */}
-            <div className="pt-4 border-t border-slate-800 flex justify-end">
+            <div className="pt-4 border-t border-slate-800 flex flex-wrap items-center justify-between gap-4">
+              <a 
+                href="/MathWinner_AI_Full_Test_Plan.docx" 
+                download="MathWinner_AI_Full_Test_Plan.docx"
+                className="bg-slate-800 hover:bg-slate-750 text-teal-300 border border-slate-750 font-bold text-[10px] uppercase tracking-wider py-2.5 px-5 rounded-xl transition cursor-pointer flex items-center gap-1.5"
+              >
+                <Download className="w-4 h-4 text-teal-400" /> Download Word Doc Test Plan
+              </a>
               <button 
                 onClick={() => setShowManualModal(false)}
                 className="bg-teal-500 hover:bg-teal-400 text-slate-950 font-black text-[10px] uppercase tracking-wider py-2.5 px-6 rounded-xl transition cursor-pointer"
