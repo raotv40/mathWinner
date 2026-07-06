@@ -550,15 +550,6 @@ export default function Home() {
         </div>
 
         <div className="flex items-center gap-3">
-
-          <button
-            onClick={handleClearLocalDB}
-            title="Clear IndexedDB"
-            className="p-2 rounded-xl bg-slate-800 hover:bg-red-950/20 hover:text-red-400 border border-slate-700 transition"
-          >
-            <Trash2 className="w-4.5 h-4.5" />
-          </button>
-
           <button
             onClick={() => {
               setJourneyStarted(false);
