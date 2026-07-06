@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { BookOpen, Upload, Download, Sparkles, AlertCircle, Wifi, WifiOff, RefreshCw, BarChart2, ShieldAlert, Users, Trash2, Brain, Video, CheckCircle2, ChevronRight, GraduationCap, FileText, Play } from 'lucide-react';
+import { BookOpen, Upload, Download, Sparkles, AlertCircle, Wifi, WifiOff, RefreshCw, BarChart2, ShieldAlert, Users, Trash2, Brain, Video, CheckCircle2, ChevronRight, GraduationCap, FileText, Play, AlertTriangle } from 'lucide-react';
 
 import PracticeEngine, { QuestionData } from '../components/practice';
 import VideoPlayer from '../components/video-player';
@@ -859,6 +859,49 @@ export default function Home() {
                   </button>
                   <span className="text-[10px] text-slate-500 font-mono">FLOW: 1. Video & Kit (Done) → 2. MCQ Test (Active)</span>
                 </div>
+
+                {/* Outdated Exam Warning & Regenerator */}
+                {chapterDetails.questions && chapterDetails.questions.length < 5 && (
+                  <div className="bg-amber-950/25 border border-amber-500/30 p-4.5 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4 animate-pulse">
+                    <div className="space-y-1 text-left">
+                      <h4 className="text-xs font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
+                        <AlertTriangle className="w-4 h-4 shrink-0 text-amber-400" /> Outdated Exam Cached ({chapterDetails.questions.length} questions)
+                      </h4>
+                      <p className="text-[10px] text-slate-400 leading-relaxed">
+                        This chapter's diagnostic test was generated under previous limits. Re-generate to instantly load the full 6-question SAFAL diagnostic exam.
+                      </p>
+                    </div>
+                    <button
+                      onClick={async () => {
+                        try {
+                          setUploadProgress("Regenerating exam questions...");
+                          const response = await fetch(`${API_BASE_URL}/chapters/${selectedChapterId}/regenerate-questions`, {
+                            method: "POST"
+                          });
+                          if (!response.ok) throw new Error("Failed to regenerate");
+                          
+                          setNotification("Exam questions regenerated successfully!");
+                          setTimeout(() => setNotification(null), 3000);
+                          
+                          // Reload active chapter details to fetch fresh questions
+                          await loadChaptersList();
+                          if (selectedChapterId) {
+                            const updated = await fetchChapter(selectedChapterId);
+                            setChapterDetails(updated);
+                          }
+                        } catch (err) {
+                          console.error(err);
+                          alert("Failed to regenerate questions. Ensure backend is online.");
+                        } finally {
+                          setUploadProgress(null);
+                        }
+                      }}
+                      className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-[10px] uppercase tracking-wider py-2 px-4 rounded-xl shadow-lg transition whitespace-nowrap cursor-pointer shrink-0"
+                    >
+                      Regenerate Exam
+                    </button>
+                  </div>
+                )}
                 
                 <PracticeEngine
                   questions={chapterDetails.questions as QuestionData[]}

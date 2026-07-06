@@ -20,6 +20,7 @@ export interface QuestionData {
   correct_answer: string;
   hints: string[];
   step_by_step_solution: Step[];
+  concept_title?: string;
 }
 
 interface PracticeEngineProps {
@@ -111,37 +112,105 @@ export default function PracticeEngine({ questions, onAnswerSubmit }: PracticeEn
         </div>
 
         {/* Opportunities for Improvement */}
-        <div className="w-full bg-slate-950/40 border border-slate-850 p-5 rounded-2xl text-left space-y-3">
-          <h4 className="text-xs font-bold text-teal-400 uppercase tracking-wider flex items-center gap-1.5">
-            <Lightbulb className="w-4 h-4" /> Opportunities for Improvement
-          </h4>
+        <div className="w-full bg-slate-950/40 border border-slate-850 p-6 rounded-2xl text-left space-y-4 shadow-xl">
+          <div className="flex items-center justify-between">
+            <h4 className="text-xs font-bold text-teal-400 uppercase tracking-wider flex items-center gap-1.5">
+              <Lightbulb className="w-4 h-4 text-amber-400" /> Opportunities for Improvement
+            </h4>
+            <span className="text-[9px] font-bold bg-teal-500/10 border border-teal-500/20 text-teal-400 px-2 py-0.5 rounded-full uppercase">
+              NEP-2020 Diagnostic
+            </span>
+          </div>
           
           {incorrectQuestions.length === 0 ? (
-            <p className="text-xs text-emerald-400 font-medium leading-relaxed">
-              ✨ Outstanding! You got a perfect score. You have fully mastered all concepts in this practice set. Try a harder class level or class syllabus!
-            </p>
-          ) : (
-            <div className="space-y-2">
-              <p className="text-[11px] text-slate-400 leading-relaxed mb-1">
-                Based on your diagnostic errors, review the following learning indicators:
+            <div className="bg-emerald-950/20 border border-emerald-500/25 p-4 rounded-xl text-center">
+              <p className="text-xs text-emerald-400 font-medium leading-relaxed">
+                ✨ Outstanding! You got a perfect score. You have fully mastered all concepts in this practice set. Try a harder class level or class syllabus!
               </p>
-              <ul className="list-disc pl-4 space-y-2 text-xs text-slate-300">
-                {Array.from(new Set(incorrectQuestions.map(q => {
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <p className="text-[11px] text-slate-400 leading-relaxed mb-2">
+                Our diagnostic engine analyzed your incorrect responses. To improve, focus on the following competency gaps:
+              </p>
+              
+              <div className="space-y-3.5">
+                {incorrectQuestions.map((q, idx) => {
                   const txt = q.question_text.toLowerCase();
-                  if (txt.includes("convert") || txt.includes("km") || txt.includes("cm") || txt.includes("meter")) {
-                    return "Metric Unit Conversions: Focus on multiplying/dividing by conversion factors (e.g., 1 km = 1000m, 1m = 100cm).";
+                  const concept = q.concept_title || "General Competency";
+                  
+                  let recommendation = {
+                    title: `Concept master: ${concept}`,
+                    assessment: "Struggled with applying formula logic or solving variables in this specific competency case.",
+                    action: "Review the step-by-step AI solution below. Write the formula on the digital whiteboard and practice isolation steps."
+                  };
+
+                  if (txt.includes("discriminant") || concept.toLowerCase().includes("discriminant")) {
+                    recommendation = {
+                      title: "Discriminant & Roots Characterization",
+                      assessment: "Calculation error or concept confusion when mapping the discriminant (D = b^2 - 4ac) to the nature of roots (imaginary vs. real).",
+                      action: "Action: Open the digital Whiteboard, write D = b^2 - 4ac, and calculate D for equations where coefficients have negative signs."
+                    };
+                  } else if (txt.includes("roots") || txt.includes("factoriz") || concept.toLowerCase().includes("roots")) {
+                    recommendation = {
+                      title: "Factorization & Equation Formulation",
+                      assessment: "Difficulty in splitting the middle term or correctly factorizing quadratic trinomials to isolate roots.",
+                      action: "Action: Re-watch the teacher's video explanation on splitting middle terms, paying close attention to factor sign combinations."
+                    };
+                  } else if (txt.includes("ladder") || txt.includes("angle of elevation") || concept.toLowerCase().includes("height")) {
+                    recommendation = {
+                      title: "Heights & Distances Application",
+                      assessment: "Struggled with translating word problems into right-angled triangles and selecting correct trigonometric ratios.",
+                      action: "Action: Sketch the problem scenario (e.g. wall, ladder, angle) on paper first. Identify which side is adjacent and opposite before selecting ratios."
+                    };
+                  } else if (txt.includes("sin") || txt.includes("cos") || txt.includes("tan") || concept.toLowerCase().includes("ratio")) {
+                    recommendation = {
+                      title: "Trigonometric Ratio Formulas",
+                      assessment: "Confused sine, cosine, or tangent ratios relative to the base angle, or made errors calculating side ratios.",
+                      action: "Action: Remember 'Some School Girls Have Curly Brown Hair Turn Red' (Sine = Opp/Hyp, Cos = Adj/Hyp, Tan = Opp/Adj). Check calculations."
+                    };
+                  } else if (txt.includes("convert") || txt.includes("km") || txt.includes("cm") || txt.includes("meter")) {
+                    recommendation = {
+                      title: "Metric Unit Scale Conversions",
+                      assessment: "Calculation mismatch converting lengths (e.g. km to meters, or meters to cm) within word problems.",
+                      action: "Action: Use the physical conversion sliders inside the MathWinner Tool Kit box. Physical modeling prevents decimal shifts."
+                    };
+                  } else if (txt.includes("perimeter") || txt.includes("rectangle") || txt.includes("square")) {
+                    recommendation = {
+                      title: "Geometric Boundaries & Perimeters",
+                      assessment: "Misapplied perimeter formula or calculated areas instead of boundary length sums.",
+                      action: "Action: Review standard perimeter formulas (Rectangle P = 2(L + W), Square P = 4S) and double-check algebraic dimensions."
+                    };
                   }
-                  if (txt.includes("perimeter") || txt.includes("rectangle") || txt.includes("square")) {
-                    return "Geometric Perimeters: Practice calculating boundaries using formulas (Rectangle P = 2 × (L + W)).";
-                  }
-                  if (txt.includes("equation") || txt.includes("solve")) {
-                    return "Equation Solving: Practice isolating variables step-by-step (adding/subtracting constants, then dividing).";
-                  }
-                  return `Concept reinforcement: Revise worked examples for "${q.question_text.substring(0, 40)}..."`;
-                }))).map((recommendation, idx) => (
-                  <li key={idx} className="leading-relaxed">{recommendation}</li>
-                ))}
-              </ul>
+
+                  return (
+                    <div 
+                      key={idx}
+                      className="p-4 rounded-2xl bg-slate-950/60 border border-slate-850 hover:border-slate-800 transition flex flex-col gap-2.5"
+                    >
+                      <div className="flex items-center justify-between gap-2 flex-wrap">
+                        <span className="text-xs font-bold text-white tracking-wide uppercase flex items-center gap-1.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+                          {recommendation.title}
+                        </span>
+                        <span className="text-[9px] font-mono text-slate-500 uppercase tracking-wider">
+                          Question {questions.indexOf(q) + 1}
+                        </span>
+                      </div>
+                      
+                      <div className="space-y-1.5">
+                        <p className="text-xs text-slate-400 leading-relaxed">
+                          <span className="font-semibold text-slate-300">Diagnostic:</span> {recommendation.assessment}
+                        </p>
+                        <p className="text-xs text-teal-300 font-semibold leading-relaxed flex items-start gap-1">
+                          <Sparkles className="w-4 h-4 text-teal-400 shrink-0 mt-0.5" />
+                          <span>{recommendation.action}</span>
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           )}
         </div>
