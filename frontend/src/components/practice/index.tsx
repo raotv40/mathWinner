@@ -370,7 +370,11 @@ export default function PracticeEngine({ questions, onAnswerSubmit }: PracticeEn
               onClick={nextQuestion}
               className="bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold px-6 py-2.5 rounded-xl shadow-lg shadow-teal-500/25 transition flex items-center gap-1.5"
             >
-              Next Question <ChevronRight className="w-4 h-4" />
+              {currentIdx === questions.length - 1 ? (
+                <>End Quiz</>
+              ) : (
+                <>Next Question <ChevronRight className="w-4 h-4" /></>
+              )}
             </button>
           )}
         </div>
