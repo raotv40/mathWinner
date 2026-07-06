@@ -247,6 +247,7 @@ export default function VideoPlayer({ chapterId, videoUrl, formulas, transcript,
           onTimeUpdate={handleTimeUpdate}
           onLoadedMetadata={handleLoadedMetadata}
           onClick={togglePlay}
+          onDoubleClick={addBookmark}
           onError={handleVideoError}
         />
 
