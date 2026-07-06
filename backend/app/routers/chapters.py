@@ -369,3 +369,71 @@ async def delete_chapter(chapter_id: str, db: AsyncSession = Depends(get_db)):
     await db.commit()
     
     return {"status": "success", "message": "Chapter and associated files deleted successfully."}
+
+@router.post("/{chapter_id}/regenerate-questions", response_model=Dict[str, Any])
+async def regenerate_questions(chapter_id: str, db: AsyncSession = Depends(get_db)):
+    from sqlalchemy import delete
+    try:
+        chap_uuid = uuid.UUID(chapter_id)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid chapter ID format")
+        
+    # 1. Fetch chapter
+    result = await db.execute(select(Chapter).filter(Chapter.id == chap_uuid))
+    chapter = result.scalars().first()
+    if not chapter:
+        raise HTTPException(status_code=404, detail="Chapter not found")
+        
+    # 2. Get existing concepts
+    concepts_res = await db.execute(select(Concept).filter(Concept.chapter_id == chap_uuid))
+    concepts = concepts_res.scalars().all()
+    concepts_data = [{"title": c.title, "description": c.description} for c in concepts]
+    
+    # 3. Get existing video embeddings / segments
+    emb_res = await db.execute(
+        select(ChapterEmbedding)
+        .filter(ChapterEmbedding.chapter_id == chap_uuid, ChapterEmbedding.source_type == "video")
+    )
+    embeddings = emb_res.scalars().all()
+    video_segments = [{
+        "concept_title": emb.concept.title if emb.concept else None,
+        "start_time": emb.timestamp_seconds or 0.0,
+        "text": emb.content
+    } for emb in embeddings]
+    
+    # 4. Generate new questions using QuestionAgent (count=6)
+    questions = await QuestionAgent.generate_questions(
+        chapter.title,
+        count=6,
+        concepts=concepts_data,
+        video_segments=video_segments
+    )
+    
+    if not questions:
+        raise HTTPException(status_code=500, detail="Failed to generate new questions")
+        
+    # 5. Delete old questions for this chapter
+    await db.execute(delete(Question).filter(Question.chapter_id == chap_uuid))
+    
+    # 6. Save new questions
+    concept_mapping = {c.title: c.id for c in concepts}
+    for q in questions:
+        concept_title_guess = q.get("concept_title")
+        concept_id = concept_mapping.get(concept_title_guess) if concept_title_guess else None
+        
+        db_q = Question(
+            chapter_id=chapter.id,
+            concept_id=concept_id,
+            difficulty=q["difficulty"],
+            category=q["category"],
+            question_text=q["question_text"],
+            question_type=q["question_type"],
+            options=q.get("options"),
+            correct_answer=q["correct_answer"],
+            hints=q["hints"],
+            step_by_step_solution=q["step_by_step_solution"]
+        )
+        db.add(db_q)
+        
+    await db.commit()
+    return {"status": "success", "count": len(questions)}
