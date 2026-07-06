@@ -92,6 +92,55 @@ class QuestionAgent:
                         {"step": "3", "instruction": "Since D = -4 (which is < 0), the roots are not real. Assertion A is true."},
                         {"step": "4", "instruction": "Since D < 0 guarantees no real roots, Reason R is true and explains A."}
                     ]
+                },
+                {
+                    "difficulty": "easy",
+                    "category": "board",
+                    "question_text": "Which of the following is a quadratic equation?",
+                    "question_type": "mcq",
+                    "options": ["x^2 - 3x + 2 = 0", "x + 5 = 10", "x^3 - x = 0", "x^2 + y = 5"],
+                    "correct_answer": "x^2 - 3x + 2 = 0",
+                    "hints": ["Recall standard form is ax^2 + bx + c = 0, where a != 0."],
+                    "step_by_step_solution": [
+                        {"step": "1", "instruction": "Check degree of variables: standard quadratic form has highest degree 2 in one variable."},
+                        {"step": "2", "instruction": "Verify option 1: x^2 - 3x + 2 = 0 contains x with power 2 and fits ax^2+bx+c=0."}
+                    ]
+                },
+                {
+                    "difficulty": "medium",
+                    "category": "board",
+                    "question_text": "Find the value of k for which the quadratic equation $$2x^2 + kx + 3 = 0$$ has equal roots.",
+                    "question_type": "mcq",
+                    "options": ["k = ±2√6", "k = ±6", "k = ±4", "k = ±√3"],
+                    "correct_answer": "k = ±2√6",
+                    "hints": [
+                        "For equal roots, Discriminant D = b^2 - 4ac = 0.",
+                        "b = k, a = 2, c = 3."
+                    ],
+                    "step_by_step_solution": [
+                        {"step": "1", "instruction": "Identify coefficients: a = 2, b = k, c = 3."},
+                        {"step": "2", "instruction": "Apply condition D = 0: k^2 - 4(2)(3) = 0."},
+                        {"step": "3", "instruction": "Simplify: k^2 - 24 = 0 => k = ±√24 = ±2√6."}
+                    ]
+                },
+                {
+                    "difficulty": "hard",
+                    "category": "competency",
+                    "question_text": "The sum of the reciprocals of Rehman's age (in years) 3 years ago and 5 years from now is 1/3. Find his present age.",
+                    "question_type": "word-problem",
+                    "options": ["7 years", "5 years", "10 years", "6 years"],
+                    "correct_answer": "7 years",
+                    "hints": [
+                        "Let present age be x. Age 3 years ago is x-3, and 5 years from now is x+5.",
+                        "Formulate the equation: 1/(x-3) + 1/(x+5) = 1/3."
+                    ],
+                    "step_by_step_solution": [
+                        {"step": "1", "instruction": "Set Rehman's present age to x."},
+                        {"step": "2", "instruction": "Form equation: [1/(x - 3)] + [1/(x + 5)] = 1/3."},
+                        {"step": "3", "instruction": "Simplify: (x + 5 + x - 3) / ((x-3)(x+5)) = 1/3 => (2x+2)/(x^2+2x-15) = 1/3."},
+                        {"step": "4", "instruction": "Cross multiply: 3(2x+2) = x^2+2x-15 => x^2 - 4x - 21 = 0."},
+                        {"step": "5", "instruction": "Factorize: (x-7)(x+3) = 0. Since age cannot be negative, Rehman is 7 years old."}
+                    ]
                 }
             ]
         elif "trigonometry" in title_lower:
@@ -131,6 +180,73 @@ class QuestionAgent:
                         {"step": "2", "instruction": "Apply cosine ratio: cos 60° = Base / Hypotenuse = 3 / L."},
                         {"step": "3", "instruction": "Substitute cos 60° = 1/2: 1/2 = 3 / L."},
                         {"step": "4", "instruction": "Solve for L: L = 2 * 3 = 6 meters."}
+                    ]
+                },
+                {
+                    "difficulty": "easy",
+                    "category": "board",
+                    "question_text": "If tan A = 4/3, what is the value of sin A?",
+                    "question_type": "mcq",
+                    "options": ["4/5", "3/5", "5/4", "3/4"],
+                    "correct_answer": "4/5",
+                    "hints": [
+                        "tan A = Opposite / Adjacent.",
+                        "Find Hypotenuse using Pythagoras: H^2 = O^2 + A^2.",
+                        "sin A = Opposite / Hypotenuse."
+                    ],
+                    "step_by_step_solution": [
+                        {"step": "1", "instruction": "Identify side lengths: Opposite = 4, Adjacent = 3."},
+                        {"step": "2", "instruction": "Calculate Hypotenuse: H = √(4^2 + 3^2) = √(16 + 9) = 5."},
+                        {"step": "3", "instruction": "Find sin A: sin A = Opposite/Hypotenuse = 4/5."}
+                    ]
+                },
+                {
+                    "difficulty": "medium",
+                    "category": "board",
+                    "question_text": "Find the value of (1 + tan^2 A) / (1 + cot^2 A).",
+                    "question_type": "mcq",
+                    "options": ["tan^2 A", "cot^2 A", "sec^2 A", "1"],
+                    "correct_answer": "tan^2 A",
+                    "hints": [
+                        "1 + tan^2 A = sec^2 A.",
+                        "1 + cot^2 A = cosec^2 A.",
+                        "sec^2 A / cosec^2 A = (1/cos^2 A) / (1/sin^2 A)."
+                    ],
+                    "step_by_step_solution": [
+                        {"step": "1", "instruction": "Apply identities: Numerator = sec^2 A, Denominator = cosec^2 A."},
+                        {"step": "2", "instruction": "Rewrite as sin/cos: (1/cos^2 A) / (1/sin^2 A) = sin^2 A / cos^2 A = tan^2 A."}
+                    ]
+                },
+                {
+                    "difficulty": "easy",
+                    "category": "board",
+                    "question_text": "Evaluate 2 tan^2 45° + cos^2 30° - sin^2 60°.",
+                    "question_type": "mcq",
+                    "options": ["2", "1", "0", "4"],
+                    "correct_answer": "2",
+                    "hints": [
+                        "tan 45° = 1, cos 30° = √3/2, sin 60° = √3/2."
+                    ],
+                    "step_by_step_solution": [
+                        {"step": "1", "instruction": "Substitute values: 2*(1)^2 + (√3/2)^2 - (√3/2)^2."},
+                        {"step": "2", "instruction": "Notice (√3/2)^2 cancel out: 2*(1) + 3/4 - 3/4 = 2."}
+                    ]
+                },
+                {
+                    "difficulty": "hard",
+                    "category": "hots",
+                    "question_text": "Simplify the expression (sec A + tan A)(1 - sin A).",
+                    "question_type": "mcq",
+                    "options": ["cos A", "sin A", "sec A", "cosec A"],
+                    "correct_answer": "cos A",
+                    "hints": [
+                        "Convert sec A and tan A to sin and cos: sec A = 1/cos A, tan A = sin A/cos A.",
+                        "The expression becomes (1 + sin A)(1 - sin A) / cos A."
+                    ],
+                    "step_by_step_solution": [
+                        {"step": "1", "instruction": "Rewrite: (1/cos A + sin A/cos A)(1 - sin A) = ((1 + sin A)/cos A) * (1 - sin A)."},
+                        {"step": "2", "instruction": "Simplify numerator: (1 - sin^2 A) / cos A."},
+                        {"step": "3", "instruction": "Use Pythagorean identity: cos^2 A / cos A = cos A."}
                     ]
                 }
             ]
