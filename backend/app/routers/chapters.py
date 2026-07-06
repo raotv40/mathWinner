@@ -315,3 +315,42 @@ async def get_offline_package(chapter_id: str, db: AsyncSession = Depends(get_db
             } for e in embeddings
         ]
     }
+
+@router.delete("/{chapter_id}", response_model=Dict[str, Any])
+async def delete_chapter(chapter_id: str, db: AsyncSession = Depends(get_db)):
+    from sqlalchemy import delete
+    try:
+        chap_uuid = uuid.UUID(chapter_id)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid chapter ID format")
+        
+    result = await db.execute(select(Chapter).filter(Chapter.id == chap_uuid))
+    chapter = result.scalars().first()
+    if not chapter:
+        raise HTTPException(status_code=404, detail="Chapter not found")
+        
+    # Delete physical uploaded files
+    if chapter.pdf_url:
+        pdf_path = os.path.join(settings.UPLOAD_DIR, os.path.basename(chapter.pdf_url))
+        if os.path.exists(pdf_path):
+            try:
+                os.remove(pdf_path)
+            except Exception as e:
+                print(f"Error removing PDF file: {e}")
+                
+    if chapter.video_url:
+        video_path = os.path.join(settings.UPLOAD_DIR, os.path.basename(chapter.video_url))
+        if os.path.exists(video_path):
+            try:
+                os.remove(video_path)
+            except Exception as e:
+                print(f"Error removing video file: {e}")
+                
+    # Delete database records
+    await db.execute(delete(ChapterEmbedding).filter(ChapterEmbedding.chapter_id == chap_uuid))
+    await db.execute(delete(Question).filter(Question.chapter_id == chap_uuid))
+    await db.execute(delete(Concept).filter(Concept.chapter_id == chap_uuid))
+    await db.delete(chapter)
+    await db.commit()
+    
+    return {"status": "success", "message": "Chapter and associated files deleted successfully."}

@@ -212,3 +212,37 @@ export function resolveUploadUrl(url: string | undefined): string {
   }
   return url;
 }
+
+export async function deleteChapter(chapterId: string): Promise<void> {
+  const token = localStorage.getItem('mathwinner_token') || '';
+  
+  // 1. Delete from backend if online
+  if (isOnline()) {
+    try {
+      const res = await fetch(`${API_BASE_URL}/chapters/${chapterId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      if (!res.ok) {
+        console.warn("Server delete request returned non-OK status");
+      }
+    } catch (err) {
+      console.warn("Could not delete chapter from server (network error):", err);
+    }
+  }
+  
+  // 2. Always clear local IndexedDB data
+  try {
+    const { db } = await import('./db');
+    await db.chapters.delete(chapterId);
+    await db.files.delete(chapterId);
+    await db.concepts.where('chapter_id').equals(chapterId).delete();
+    await db.questions.where('chapter_id').equals(chapterId).delete();
+    await db.embeddings.where('chapter_id').equals(chapterId).delete();
+    console.log(`Successfully cleared IndexedDB data for chapter ${chapterId}`);
+  } catch (dbErr) {
+    console.warn("Failed to clear local IndexedDB records for chapter:", dbErr);
+  }
+}

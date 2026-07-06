@@ -6,7 +6,7 @@ import { BookOpen, Upload, Download, Sparkles, AlertCircle, Wifi, WifiOff, Refre
 import PracticeEngine, { QuestionData } from '../components/practice';
 import VideoPlayer from '../components/video-player';
 
-import { fetchChapters, fetchChapter, downloadChapterOffline, isOnline as checkOnline, API_BASE_URL, resolveUploadUrl } from '../lib/api';
+import { fetchChapters, fetchChapter, downloadChapterOffline, isOnline as checkOnline, API_BASE_URL, resolveUploadUrl, deleteChapter } from '../lib/api';
 import { db } from '../lib/db';
 
 export default function Home() {
@@ -79,6 +79,24 @@ export default function Home() {
       localStorage.setItem('mathwinner_selected_chapter_id', id);
     } else {
       localStorage.removeItem('mathwinner_selected_chapter_id');
+    }
+  };
+
+  const handleDeleteChapter = async (e: React.MouseEvent, id: string) => {
+    e.stopPropagation(); // Avoid triggering card selection
+    if (!confirm("Are you sure you want to delete this chapter and all its cached files?")) return;
+    
+    try {
+      await deleteChapter(id);
+      
+      // If we deleted the actively selected chapter, clear active details view
+      if (selectedChapterId === id) {
+        selectChapter(null);
+      }
+      
+      await loadChaptersList();
+    } catch (err) {
+      console.warn("Failed to delete chapter:", err);
     }
   };
 
@@ -516,29 +534,40 @@ export default function Home() {
                   <button
                     key={ch.id}
                     onClick={() => selectChapter(ch.id)}
-                    className={`w-full text-left p-3 rounded-2xl border transition flex items-center gap-3.5 ${
+                    className={`w-full text-left p-3 rounded-2xl border transition flex items-center justify-between gap-3.5 group/card ${
                       selectedChapterId === ch.id
                         ? 'bg-teal-500/10 border-teal-500/30 text-teal-300'
                         : 'bg-slate-950/40 border-slate-850 hover:bg-slate-850/40'
                     }`}
                   >
-                    {/* Tiny Video Thumbnail Preview */}
-                    <div className="w-12 h-8 rounded-lg overflow-hidden border border-slate-800 bg-slate-950 shrink-0 relative">
-                      <video 
-                        src={ch.video_url ? resolveUploadUrl(ch.video_url) : '#'} 
-                        preload="metadata" 
-                        muted
-                        className="w-full h-full object-cover" 
-                      />
-                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                        <Play className="w-2.5 h-2.5 text-white fill-white translate-x-[0.5px]" />
+                    <div className="flex items-center gap-3 min-w-0 flex-1">
+                      {/* Tiny Video Thumbnail Preview */}
+                      <div className="w-12 h-8 rounded-lg overflow-hidden border border-slate-800 bg-slate-950 shrink-0 relative">
+                        <video 
+                          src={ch.video_url ? resolveUploadUrl(ch.video_url) : '#'} 
+                          preload="metadata" 
+                          muted
+                          className="w-full h-full object-cover" 
+                        />
+                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                          <Play className="w-2.5 h-2.5 text-white fill-white translate-x-[0.5px]" />
+                        </div>
+                      </div>
+
+                      <div className="min-w-0 flex-1">
+                        <span className="text-[9px] font-bold text-slate-400 uppercase">Chapter {ch.chapter_number}</span>
+                        <h4 className="text-xs font-bold text-white mt-0.5 leading-snug truncate">{ch.title}</h4>
                       </div>
                     </div>
 
-                    <div className="flex-1 min-w-0">
-                      <span className="text-[9px] font-bold text-slate-400 uppercase">Chapter {ch.chapter_number}</span>
-                      <h4 className="text-xs font-bold text-white mt-0.5 leading-snug truncate">{ch.title}</h4>
-                    </div>
+                    {/* Delete Action Trigger */}
+                    <span
+                      onClick={(e) => handleDeleteChapter(e, ch.id)}
+                      className="p-2 rounded-xl text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition opacity-0 group-hover/card:opacity-100 focus:opacity-100 shrink-0 cursor-pointer"
+                      title="Delete Chapter"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </span>
                   </button>
                 ))
               )}
