@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { BookOpen, Upload, Download, Sparkles, AlertCircle, Wifi, WifiOff, RefreshCw, BarChart2, ShieldAlert, Users, Trash2, Brain, Video, CheckCircle2, ChevronRight, GraduationCap, FileText, Play, AlertTriangle } from 'lucide-react';
+import { BookOpen, Upload, Download, Sparkles, AlertCircle, Wifi, WifiOff, RefreshCw, BarChart2, ShieldAlert, Users, Trash2, Brain, Video, CheckCircle2, ChevronRight, GraduationCap, FileText, Play, AlertTriangle, HelpCircle, X } from 'lucide-react';
 
 import PracticeEngine, { QuestionData } from '../components/practice';
 import VideoPlayer from '../components/video-player';
@@ -50,6 +50,7 @@ export default function Home() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState<string | null>(null);
+  const [showManualModal, setShowManualModal] = useState<boolean>(false);
 
   useEffect(() => {
     const msg = localStorage.getItem('mathwinner_delete_msg');
@@ -534,7 +535,113 @@ export default function Home() {
           <CheckCircle2 className="w-4.5 h-4.5 text-emerald-400" /> {notification}
         </div>
       )}
-      
+
+      {/* User Manual Modal */}
+      {showManualModal && (
+        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[99999] flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-slate-800 max-w-3xl w-full max-h-[85vh] rounded-3xl p-6 md:p-8 flex flex-col gap-6 shadow-2xl relative overflow-hidden animate-fade-in text-left">
+            
+            {/* Modal Header */}
+            <div className="flex items-center justify-between pb-4 border-b border-slate-800">
+              <div className="flex items-center gap-2.5">
+                <HelpCircle className="w-5 h-5 text-teal-400" />
+                <h2 className="text-sm font-black text-white uppercase tracking-wider">
+                  MathWinner AI Platform: User Guide & Manual
+                </h2>
+              </div>
+              <button 
+                onClick={() => setShowManualModal(false)}
+                className="p-1.5 rounded-xl bg-slate-800 hover:bg-slate-750 text-slate-400 hover:text-white transition cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Scrollable Content */}
+            <div className="flex-1 overflow-y-auto pr-2 space-y-6 text-xs text-slate-300 leading-relaxed scrollbar-thin scrollbar-thumb-slate-800 scrollbar-track-transparent">
+              
+              {/* Section 1 */}
+              <div className="space-y-2">
+                <h3 className="text-xs font-bold text-white uppercase tracking-wide flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-teal-400"></span>
+                  1. Student Learning Flow
+                </h3>
+                <p className="text-[11px] text-slate-400">
+                  MathWinner AI shifts K-12 mathematics education from memorization to outcomes-based mastery under NEP-2020 diagnostic guidelines:
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 pt-1.5">
+                  <div className="bg-slate-950/50 border border-slate-850 p-3.5 rounded-2xl">
+                    <span className="font-bold text-teal-400 uppercase text-[9px] tracking-wider block">Step 1: Select Class & Lesson</span>
+                    <p className="text-[10px] text-slate-500 mt-1">Select class level (Class 1-12) to instantly filter syllabus. Select a chapter from the sidebar or upload custom textbooks and teacher videos.</p>
+                  </div>
+                  <div className="bg-slate-950/50 border border-slate-850 p-3.5 rounded-2xl">
+                    <span className="font-bold text-teal-400 uppercase text-[9px] tracking-wider block">Step 2: Hands-On Physical Modeling</span>
+                    <p className="text-[10px] text-slate-500 mt-1">Watch lesson videos on the left. In sync, interact with measuring tapes, conversion cards, and geometric scales in the MathWinner physical toolkit.</p>
+                  </div>
+                  <div className="bg-slate-950/50 border border-slate-850 p-3.5 rounded-2xl">
+                    <span className="font-bold text-teal-400 uppercase text-[9px] tracking-wider block">Step 3: Solve Competency Quiz</span>
+                    <p className="text-[10px] text-slate-500 mt-1">Unlock the MCQ Test. Solve standard CBSE case scenarios testing conceptual application rather than memorizing formula lists.</p>
+                  </div>
+                  <div className="bg-slate-950/50 border border-slate-850 p-3.5 rounded-2xl">
+                    <span className="font-bold text-teal-400 uppercase text-[9px] tracking-wider block">Step 4: Inspect Outcome Diagnostics</span>
+                    <p className="text-[10px] text-slate-500 mt-1">View step-by-step solutions for errors. Analyze the outcome diagnostics card pinpointing exact conceptual gaps for guidance.</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Section 2 */}
+              <div className="space-y-2">
+                <h3 className="text-xs font-bold text-white uppercase tracking-wide flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-teal-400"></span>
+                  2. Step-by-Step Actions Guide
+                </h3>
+                <ul className="space-y-2.5 list-disc pl-4 text-[11px] text-slate-400">
+                  <li>
+                    <strong className="text-slate-200">Switching Class Levels:</strong> Click Class buttons in sidebar header. Chapters list updates immediately.
+                  </li>
+                  <li>
+                    <strong className="text-slate-200">Uploading Custom Material:</strong> Fill title and chapter number, attach NCERT Textbook chapter PDF, attach lesson video (.mp4 under 25MB to run Whisper API), click Upload.
+                  </li>
+                  <li>
+                    <strong className="text-slate-200">Video timeline navigation:</strong> Watch overlay formulas adjust during topics. Double click or tap bookmarks to skip precisely.
+                  </li>
+                  <li>
+                    <strong className="text-slate-250">Deleting custom chapters:</strong> Hover over sidebar cards and click the Trash icon. Wipes local cache and Neon database records automatically.
+                  </li>
+                </ul>
+              </div>
+
+              {/* Section 3 */}
+              <div className="space-y-2">
+                <h3 className="text-xs font-bold text-white uppercase tracking-wide flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-teal-400"></span>
+                  3. Educational Philosophy: SAFAL Grounded
+                </h3>
+                <div className="bg-slate-950/60 border border-slate-850 rounded-2xl overflow-hidden p-3.5 text-[10px] text-slate-500 leading-normal space-y-1.5">
+                  <p>
+                    Traditional tests score by grade scales (summative pass/fail), encouraging rote memorization of steps. MathWinner AI adopts CBSE's <span className="text-teal-400 font-semibold">Structured Assessment for Analyzing Learning (SAFAL)</span> guidelines.
+                  </p>
+                  <p>
+                    Practice question pools are dynamically mapped to your specific textbook concepts. Diagnostic solutions break calculations down to identify the precise phase of logical failure, replacing the rote grading system with constructive, actionable opportunities for improvement.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="pt-4 border-t border-slate-800 flex justify-end">
+              <button 
+                onClick={() => setShowManualModal(false)}
+                className="bg-teal-500 hover:bg-teal-400 text-slate-950 font-black text-[10px] uppercase tracking-wider py-2.5 px-6 rounded-xl transition cursor-pointer"
+              >
+                Got It, Close
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+
       {/* Top Navbar */}
       <header className="bg-slate-900/60 border-b border-slate-800/80 sticky top-0 z-50 backdrop-blur-md px-6 py-4 flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-3">
@@ -550,6 +657,13 @@ export default function Home() {
         </div>
 
         <div className="flex items-center gap-3">
+          <button
+            onClick={() => setShowManualModal(true)}
+            className="text-xs px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-750 text-teal-300 font-bold border border-slate-750 transition cursor-pointer flex items-center gap-1.5"
+          >
+            <HelpCircle className="w-4 h-4 text-teal-400" /> User Manual
+          </button>
+
           <button
             onClick={() => {
               setJourneyStarted(false);
