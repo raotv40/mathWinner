@@ -549,26 +549,7 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Network Status indicator & simulator toggler */}
         <div className="flex items-center gap-3">
-          <button 
-            onClick={toggleNetworkSimulator}
-            className={`text-xs px-3.5 py-2 rounded-xl font-bold flex items-center gap-1.5 border transition ${
-              onlineStatus 
-                ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' 
-                : 'bg-rose-500/10 border-rose-500/20 text-rose-400'
-            }`}
-          >
-            {onlineStatus ? (
-              <>
-                <Wifi className="w-4 h-4" /> Online Mode (Simulated)
-              </>
-            ) : (
-              <>
-                <WifiOff className="w-4 h-4" /> Offline Mode (PWA Local Cache)
-              </>
-            )}
-          </button>
 
           <button
             onClick={handleClearLocalDB}
