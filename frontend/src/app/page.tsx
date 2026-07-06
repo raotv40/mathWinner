@@ -428,8 +428,10 @@ export default function Home() {
                     <span className="w-1.5 h-1.5 rounded-full bg-slate-600"></span>
                   </div>
                   <div>
-                    <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider">4. Engage with Virtual Toolkit</h4>
-                    <p className="text-[11px] text-slate-500 mt-0.5">Interact with manipulative scale toolkits to model math conversions physically.</p>
+                    <h4 className="text-xs font-bold text-white uppercase tracking-wider">4. Master with MathWinner Tool Kit (Hero Product)</h4>
+                    <p className="text-[11px] text-slate-400 mt-0.5 leading-relaxed">
+                      Haptic (tactile/touch) learning drives cognitive retention. Physically manipulate the scales, tapes, and conversion cards to model concepts in real-time.
+                    </p>
                   </div>
                 </div>
 
@@ -575,8 +577,8 @@ export default function Home() {
                     <p className="text-[10px] text-slate-500 mt-1">Select class level (Class 1-12) to instantly filter syllabus. Select a chapter from the sidebar or upload custom textbooks and teacher videos.</p>
                   </div>
                   <div className="bg-slate-950/50 border border-slate-850 p-3.5 rounded-2xl">
-                    <span className="font-bold text-teal-400 uppercase text-[9px] tracking-wider block">Step 2: Hands-On Physical Modeling</span>
-                    <p className="text-[10px] text-slate-500 mt-1">Watch lesson videos on the left. In sync, interact with measuring tapes, conversion cards, and geometric scales in the MathWinner physical toolkit.</p>
+                    <span className="font-bold text-teal-400 uppercase text-[9px] tracking-wider block">Step 2: MathWinner Tool Kit & Haptic Learning</span>
+                    <p className="text-[10px] text-slate-500 mt-1">Watch lesson videos on the left. Simultaneously engage in haptic (touch-based) learning by physically interacting with measuring tapes, conversion cards, and geometric scales in the MathWinner Tool Kit (Hero Product).</p>
                   </div>
                   <div className="bg-slate-950/50 border border-slate-850 p-3.5 rounded-2xl">
                     <span className="font-bold text-teal-400 uppercase text-[9px] tracking-wider block">Step 3: Solve Competency Quiz</span>
@@ -615,14 +617,14 @@ export default function Home() {
               <div className="space-y-2">
                 <h3 className="text-xs font-bold text-white uppercase tracking-wide flex items-center gap-1.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-teal-400"></span>
-                  3. Educational Philosophy: SAFAL Grounded
+                  3. Educational Philosophy: Haptics & SAFAL
                 </h3>
                 <div className="bg-slate-950/60 border border-slate-850 rounded-2xl overflow-hidden p-3.5 text-[10px] text-slate-500 leading-normal space-y-1.5">
                   <p>
-                    Traditional tests score by grade scales (summative pass/fail), encouraging rote memorization of steps. MathWinner AI adopts CBSE's <span className="text-teal-400 font-semibold">Structured Assessment for Analyzing Learning (SAFAL)</span> guidelines.
+                    Traditional tests encourage rote memorization of formulas. MathWinner AI is built on the philosophy that <span className="text-teal-400 font-semibold">haptic (tactile/touch) manipulation</span> of physical toolkits is the most effective bridge to internalize abstract concepts.
                   </p>
                   <p>
-                    Practice question pools are dynamically mapped to your specific textbook concepts. Diagnostic solutions break calculations down to identify the precise phase of logical failure, replacing the rote grading system with constructive, actionable opportunities for improvement.
+                    By coupling physical toolkit experiments (hero product) with video theory and CBSE's <span className="text-teal-400 font-semibold">Structured Assessment for Analyzing Learning (SAFAL)</span> diagnostic questions, we target the exact logical phase of conceptual misunderstandings instead of generic pass/fail scoring.
                   </p>
                 </div>
               </div>
