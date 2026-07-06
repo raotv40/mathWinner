@@ -44,6 +44,16 @@ export default function Home() {
   
   // Uploading states
   const [uploadProgress, setUploadProgress] = useState<string | null>(null);
+  const [notification, setNotification] = useState<string | null>(null);
+  
+  useEffect(() => {
+    const msg = localStorage.getItem('mathwinner_delete_msg');
+    if (msg) {
+      setNotification(msg);
+      localStorage.removeItem('mathwinner_delete_msg');
+      setTimeout(() => setNotification(null), 3000);
+    }
+  }, []);
   
   // Form Upload state
   const [uploadNum, setUploadNum] = useState<number>(() => {
@@ -93,6 +103,9 @@ export default function Home() {
       if (selectedChapterId === id) {
         selectChapter(null);
       }
+      
+      setNotification("Chapter deleted successfully");
+      setTimeout(() => setNotification(null), 3000);
       
       await loadChaptersList();
     } catch (err) {
@@ -316,6 +329,7 @@ export default function Home() {
   const handleClearLocalDB = async () => {
     if (confirm("Are you sure you want to clear the offline package database?")) {
       await db.delete();
+      localStorage.setItem('mathwinner_delete_msg', 'Offline database cache cleared successfully');
       window.location.reload();
     }
   };
@@ -445,6 +459,22 @@ export default function Home() {
 
   return (
     <div className="flex-1 bg-slate-950 text-slate-100 flex flex-col font-sans">
+      <style>{`
+        @keyframes slideDown {
+          from { transform: translate(-50%, -20px); opacity: 0; }
+          to { transform: translate(-50%, 0); opacity: 1; }
+        }
+      `}</style>
+
+      {/* Notification Toast */}
+      {notification && (
+        <div 
+          style={{ animation: 'slideDown 0.25s ease-out forwards' }}
+          className="fixed top-6 left-1/2 -translate-x-1/2 z-[9999] bg-emerald-950/95 border border-emerald-500/30 text-emerald-300 px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-2.5 font-bold text-xs backdrop-blur-md animate-fade-in"
+        >
+          <CheckCircle2 className="w-4.5 h-4.5 text-emerald-400" /> {notification}
+        </div>
+      )}
       
       {/* Top Navbar */}
       <header className="bg-slate-900/60 border-b border-slate-800/80 sticky top-0 z-50 backdrop-blur-md px-6 py-4 flex flex-wrap items-center justify-between gap-4">
