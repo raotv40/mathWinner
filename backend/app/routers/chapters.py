@@ -104,78 +104,93 @@ async def process_chapter_files_bg(
         if not chapter:
             return
             
-        # 1. Process PDF using PDFAgent
-        pdf_data = await PDFAgent.process_pdf(pdf_path, chapter_title)
-        chapter.summary = pdf_data["summary"]
-        chapter.formulas = pdf_data["formulas"]
-        chapter.mind_map = pdf_data["mind_map"]
-        
-        # Save concepts
-        concept_mapping = {}
-        for c_data in pdf_data["concepts"]:
-            concept = Concept(
-                chapter_id=chapter.id,
-                title=c_data["title"],
-                description=c_data["description"]
+        try:
+            # 1. Process PDF using PDFAgent
+            pdf_data = await PDFAgent.process_pdf(pdf_path, chapter_title)
+            chapter.summary = pdf_data["summary"]
+            chapter.formulas = pdf_data["formulas"]
+            chapter.mind_map = pdf_data["mind_map"]
+            
+            # Save concepts
+            concept_mapping = {}
+            for c_data in pdf_data["concepts"]:
+                concept = Concept(
+                    chapter_id=chapter.id,
+                    title=c_data["title"],
+                    description=c_data["description"]
+                )
+                db.add(concept)
+                await db.flush()
+                concept_mapping[c_data["title"]] = concept.id
+                
+            # Save PDF embeddings
+            for chunk in pdf_data["chunks"]:
+                concept_id = concept_mapping.get(chunk["concept_title"])
+                emb = ChapterEmbedding(
+                    chapter_id=chapter.id,
+                    concept_id=concept_id,
+                    source_type="pdf",
+                    content=chunk["content"],
+                    embedding=chunk["embedding"]
+                )
+                db.add(emb)
+                
+            # 2. Process Video using VideoAgent (aligning with extracted concepts)
+            video_data = await VideoAgent.process_video(video_path, pdf_data["concepts"])
+            
+            # Save Video segments / embeddings
+            for idx, seg in enumerate(video_data["segments"]):
+                concept_id = concept_mapping.get(seg["concept_title"])
+                emb = ChapterEmbedding(
+                    chapter_id=chapter.id,
+                    concept_id=concept_id,
+                    source_type="video",
+                    content=seg["text"],
+                    timestamp_seconds=seg["start_time"],
+                    embedding=seg["embedding"]
+                )
+                db.add(emb)
+                
+            # 3. Generate initial Practice Questions using QuestionAgent
+            questions = await QuestionAgent.generate_questions(
+                chapter_title, 
+                count=6, 
+                concepts=pdf_data.get("concepts"), 
+                video_segments=video_data.get("segments")
             )
-            db.add(concept)
-            await db.flush()
-            concept_mapping[c_data["title"]] = concept.id
+            for q in questions:
+                concept_title_guess = q.get("concept_title")
+                concept_id = concept_mapping.get(concept_title_guess) if concept_title_guess else None
+                
+                db_q = Question(
+                    chapter_id=chapter.id,
+                    concept_id=concept_id,
+                    difficulty=q["difficulty"],
+                    category=q["category"],
+                    question_text=q["question_text"],
+                    question_type=q["question_type"],
+                    options=q.get("options"),
+                    correct_answer=q["correct_answer"],
+                    hints=q["hints"],
+                    step_by_step_solution=q["step_by_step_solution"]
+                )
+                db.add(db_q)
+                
+            await db.commit()
+        except Exception as err:
+            import traceback
+            print(f"CRITICAL ERROR in background task: {err}")
+            traceback.print_exc()
             
-        # Save PDF embeddings
-        for chunk in pdf_data["chunks"]:
-            concept_id = concept_mapping.get(chunk["concept_title"])
-            emb = ChapterEmbedding(
-                chapter_id=chapter.id,
-                concept_id=concept_id,
-                source_type="pdf",
-                content=chunk["content"],
-                embedding=chunk["embedding"]
-            )
-            db.add(emb)
+            # Rollback active transaction
+            await db.rollback()
             
-        # 2. Process Video using VideoAgent (aligning with extracted concepts)
-        video_data = await VideoAgent.process_video(video_path, pdf_data["concepts"])
-        
-        # Save Video segments / embeddings
-        for idx, seg in enumerate(video_data["segments"]):
-            concept_id = concept_mapping.get(seg["concept_title"])
-            emb = ChapterEmbedding(
-                chapter_id=chapter.id,
-                concept_id=concept_id,
-                source_type="video",
-                content=seg["text"],
-                timestamp_seconds=seg["start_time"],
-                embedding=seg["embedding"]
-            )
-            db.add(emb)
-            
-        # 3. Generate initial Practice Questions using QuestionAgent
-        questions = await QuestionAgent.generate_questions(
-            chapter_title, 
-            count=6, 
-            concepts=pdf_data.get("concepts"), 
-            video_segments=video_data.get("segments")
-        )
-        for q in questions:
-            concept_title_guess = q.get("concept_title")
-            concept_id = concept_mapping.get(concept_title_guess) if concept_title_guess else None
-            
-            db_q = Question(
-                chapter_id=chapter.id,
-                concept_id=concept_id,
-                difficulty=q["difficulty"],
-                category=q["category"],
-                question_text=q["question_text"],
-                question_type=q["question_type"],
-                options=q.get("options"),
-                correct_answer=q["correct_answer"],
-                hints=q["hints"],
-                step_by_step_solution=q["step_by_step_solution"]
-            )
-            db.add(db_q)
-            
-        await db.commit()
+            # Write error message to chapter details summary so user sees it
+            try:
+                chapter.summary = f"Processing failed: {str(err)}"
+                await db.commit()
+            except Exception as commit_err:
+                print(f"Failed to record background task error to database: {commit_err}")
         break
 
 @router.post("/upload", response_model=Dict[str, Any])
